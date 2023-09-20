@@ -139,15 +139,18 @@ contains
    end subroutine main_loop
 
    function test_fft_main(in) result(out)
-      use fft_mod, only : plan_ffts, fft_2d, ifft_2d
-      real(8) :: in(:,:)
-      complex(8) :: out(size(in,1), size(in, 2)), nout(size(in,1), size(in, 2))
+      use fft_mod
+      real(8) :: in(:,:), nin(size(in,1), size(in, 2))
+      complex(8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
 
       call plan_ffts()
 
+      ! print *, in
       out = fft_2d(in)
-      print *, "hello"
-      nout = ifft_2d(out)
+      cout = out
+      nin = ifft_2d(cout)
+
+      ! print *, in - nin
 
    end function test_fft_main
 

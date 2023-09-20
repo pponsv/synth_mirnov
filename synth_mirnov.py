@@ -38,8 +38,8 @@ print(coil_positions)
 if LOAD_BOOZ is False:
     booz = vl.Booz(
         "./device/tjii/100_44_64/boozmn_100_44_64_0.0.nc",
-        theta=np.linspace(0, 2 * np.pi, 64 + 1)[:-1],
-        phi=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
+        theta=np.linspace(0, 2 * np.pi, 2 + 1)[:-1],
+        phi=np.linspace(0, 2 * np.pi, 3 + 1)[:-1],
     )
     booz.get_vectors()
     if SAVE_BOOZ is True:
@@ -111,12 +111,26 @@ sm.init_pot(
 sm.init_coils(coil_positions)
 
 tic()
-sm.main_loop()
+# sm.main_loop()
 toc()
 
-fft_test = np.random.rand(len(booz.th), len(booz.ph)).astype(np.complex128)
+ths, phs = np.meshgrid(booz.th, booz.ph)
+fft_test = np.sin(3 * ths - 2 * phs).T
 print(fft_test.shape)
+print(len(booz.th), len(booz.ph))
 out = sm.test_fft_main(fft_test)
 nout = np.fft.fft2(fft_test)
-print(booz.vars["mod_b"][-1, :, :])
+
 print(np.isclose(out, nout))
+print(out / nout)
+fig, ax = plt.subplots(3, 2)
+ax[0, 0].pcolor(np.abs(out))
+ax[1, 0].pcolor(np.real(out))
+ax[2, 0].pcolor(np.imag(out))
+ax[0, 1].pcolor(np.abs(nout))
+ax[1, 1].pcolor(np.real(nout))
+ax[2, 1].pcolor(np.imag(nout))
+
+plt.figure()
+plt.pcolor(np.abs(out - nout))
+plt.show()
