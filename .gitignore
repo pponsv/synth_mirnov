@@ -1,0 +1,9 @@
+bld/
+bin/
+booz_pickles/
+device/
+lib/
+
+*.cpython*
+*.o
+*.a
