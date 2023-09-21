@@ -66,22 +66,22 @@ potentials = [
         booz.s,
         m=5,
         n=8,
-        freq=131,
+        freq=150,
         profile_function=gaussian_profile,
         amp=15,
         s0=0.3,
-        sigma=0.05,
-    ),
-    potential(
-        booz.s,
-        m=4,
-        n=7,
-        freq=320,
-        profile_function=gaussian_profile,
-        amp=5 + 0.1j,
-        s0=0.4,
         sigma=0.03,
     ),
+    # potential(
+    #     booz.s,
+    #     m=4,
+    #     n=7,
+    #     freq=320,
+    #     profile_function=gaussian_profile,
+    #     amp=5 + 0.1j,
+    #     s0=0.4,
+    #     sigma=0.03,
+    # ),
 ]
 
 
@@ -113,7 +113,7 @@ sm.init_coils(coil_positions)
 
 tic()
 print(coil_positions.shape[1])
-db = sm.main_loop(coil_positions.shape[1], len(time))
+db = sm.run(coil_positions.shape[1], len(time))
 toc()
 plt.plot(time, db[0, 0, :])
 plt.plot(time, db[0, 1, :])
