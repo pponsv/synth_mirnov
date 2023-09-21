@@ -13,30 +13,47 @@ contains
       real(8) :: tmp
       type(vector_grid) :: integrand
 
-      print *, "Main loop", num_coils, size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
+      print *, "MAIN LOOP"
+      print *, "num_coils=", num_coils, "len_t=", len_t
 
-      ! $OMP PARALLEL DO PRIVATE(idx_time, idx_coil, integrand, gradpar_pot_sub, curl_curl_gradpar_pot)
       do idx_time=1, size(t)
 
          call potential_gradients(t(idx_time))
          gradpar_pot_sub = lower_indices(gradpar_pot_super, g_sub_ij)
-         curl_curl_gradpar_pot = curl(lower_indices(curl(gradpar_pot_sub), g_sub_ij))
+         j_super = curl(lower_indices(curl(gradpar_pot_sub), g_sub_ij))
 
          !Pasar curl a cartesianas (multiplicando por e_sub_i)
          print *, 'TIMESTEP: ', idx_time, '  t=', t(idx_time)
 
-         ! $OMP PARALLEL DO PRIVATE(idx_coil, integrand)
          do idx_coil=1, num_coils
             ! print *, idx_coil, "debug"
-            integrand = cross_vector_grid(curl_curl_gradpar_pot, r_coil(idx_coil))
-            ! $OMP WORKSHARE
+            integrand = cross_vector_grid(j_super, r_coil(idx_coil))
             db_coils(idx_coil, 1, idx_time) = sum(integrand%u1 * vol_element)
             db_coils(idx_coil, 2, idx_time) = sum(integrand%u2 * vol_element)
             db_coils(idx_coil, 3, idx_time) = sum(integrand%u3 * vol_element)
-            ! $OMP END WORKSHARE
          end do
-         ! $OMP END PARALLEL DO
+      end do
+   end subroutine main_loop
+
+   subroutine init_coils_main
+      use global, only : coil_positions, num_coils, r_coil, xyz_grid, abs_r_coil, &
+         inv_abs_r_coil_squared, len_s, len_th, len_ph
+      use types, only : dot_vector_grid
+      integer :: idx_coil
+
+      allocate(inv_abs_r_coil_squared(num_coils, len_s, len_th, len_ph))
+      allocate(r_coil(num_coils))
+
+      ! $OMP PARALLEL DO PRIVATE(idx_coil)
+      do idx_coil = 1, num_coils
+         r_coil(idx_coil)%u1 = xyz_grid%u1 - coil_positions(1,idx_coil)
+         r_coil(idx_coil)%u2 = xyz_grid%u2 - coil_positions(2,idx_coil)
+         r_coil(idx_coil)%u3 = xyz_grid%u3 - coil_positions(3,idx_coil)
+         inv_abs_r_coil_squared(idx_coil, :, :, :) = dot_vector_grid(r_coil(idx_coil), r_coil(idx_coil))
       end do
       ! $OMP END PARALLEL DO
-   end subroutine main_loop
+      abs_r_coil = sqrt(inv_abs_r_coil_squared)
+      inv_abs_r_coil_squared = 1./inv_abs_r_coil_squared
+      print *, (sum(abs_r_coil))
+   end subroutine init_coils_main
 end module main

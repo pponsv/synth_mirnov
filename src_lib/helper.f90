@@ -78,16 +78,6 @@ contains
       !$OMP END PARALLEL DO
    end function dfnm_ds
 
-   function outer(a, b) result(c)
-      real(8) :: a(:), b(:)
-      real(8) :: c(size(a), size(b))
 
-      integer(8) :: i, j
-      do i = 1, size(b)
-         do j = 1, size(a)
-            c(j, i) = a(j)*b(i)
-         end do
-      end do
-   end function outer
 
 end module helper

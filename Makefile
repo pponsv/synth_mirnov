@@ -5,7 +5,7 @@ OBJ_DIR = ./bld
 F90_LIB = $(wildcard $(SRC_LIB)/*.f90)
 OFILES_LIB = $(patsubst $(SRC_LIB)/%.f90,$(OBJ_DIR)/%.o,$(F90_LIB))
 
-OFILE_FLAGS = -fPIC -O2 -J./bld/ -I./bld/ -ffree-form -fopenmp -I/usr/include -flto
+OFILE_FLAGS = -fPIC -O2 -J./bld/ -I./bld/ -ffree-form -fopenmp -I/usr/include
 F2PY_FLAGS = -fPIC -O2 -ffree-form -fopenmp -L./lib/ -I./bld/  -L/usr/lib -flto
 
 run_py : compile_py
@@ -17,6 +17,10 @@ compile_py : clean compile_lib ./src/synthetic_mirnov.f90
 compile_lib : ./lib/lib$(LIBNAME).a
 
 test : ./lib/lib$(LIBNAME).a ./src/test.f90
+	gfortran -O3 -J./bld/ -flto -fPIC -I/usr/include -o ./bin/xtest ./src/test.f90 -fopenmp
+	./bin/xtest
+
+libtest : ./lib/lib$(LIBNAME).a ./src/test.f90
 	gfortran $(OFILE_FLAGS) -o ./bin/xtest ./src/test.f90  -L./lib/ -l$(LIBNAME)
 	./bin/xtest
 

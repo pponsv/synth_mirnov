@@ -8,7 +8,8 @@ module global
    !  Coil positions
    integer(8) :: num_coils
    real(8), allocatable :: coil_positions(:,:)
-   type(vector_grid), allocatable, dimension(:) :: r_coil
+   type(vector_grid), allocatable :: r_coil(:)
+   type(base_grid), allocatable :: r_coil_sub(:)
    real(8), allocatable, dimension(:,:,:,:) :: abs_r_coil, inv_abs_r_coil_squared
 
    !  Geometry and magnetic field
@@ -41,7 +42,7 @@ module global
    !  Derivatives of the potential
    real(8), allocatable, dimension(:,:,:) :: dpot_dth, dpot_dph
    !
-   type(vector_grid) :: gradpar_pot_super, gradpar_pot_sub, curl_curl_gradpar_pot
+   type(vector_grid) :: gradpar_pot_super, gradpar_pot_sub, j_super
 
    !  Gradients etc
    !  FFTfreqs for derivatives

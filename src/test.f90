@@ -1,8 +1,9 @@
-program test_compile
+program test
 
-   use helper
    implicit none
 
-   call test
+   real :: a(100,100,100,3)
 
-end program test_compile
+   a = 2.
+
+end program test

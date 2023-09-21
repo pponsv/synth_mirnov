@@ -6,9 +6,16 @@ module types
    type vector_grid
       real(8), allocatable, dimension(:,:,:) :: u1, u2, u3
    contains
-      procedure :: init => init_vector_grid
+      procedure :: init_grid => init_vector_grid
+      procedure :: init_vec => init_vector_vectors
       procedure :: alloc => alloc_vector_grid
    end type vector_grid
+
+   type base_grid
+      type(vector_grid) :: e1, e2, e3
+   contains
+
+   end type base_grid
 
    type metric_tensor
       real(8), allocatable, dimension(:,:,:) :: g11, g12, g13, g21, g22, g23, g31, g32, g33
@@ -17,6 +24,28 @@ module types
    end type metric_tensor
 
 contains
+
+   subroutine init_base_grid(self, e1, e2, e3)
+      class(base_grid) :: self
+      type(vector_grid) :: e1, e2, e3
+
+      self%e1 = e1
+      self%e2 = e2
+      self%e3 = e3
+   end subroutine init_base_grid
+
+   function project_over_base(base, vec) result(out)
+      type(base_grid), intent(in) :: base
+      type(vector_grid), intent(in) :: vec
+      type(vector_grid) :: out
+      type(base_grid) :: tmp
+
+      tmp%e1 = product_with_scalar_grid(base%e1, vec%u1)
+      tmp%e2 = product_with_scalar_grid(base%e2, vec%u2)
+      tmp%e3 = product_with_scalar_grid(base%e3, vec%u3)
+
+      out = sum_vector_3(tmp%e1, tmp%e2, tmp%e3)
+   end function project_over_base
 
    subroutine alloc_vector_grid(self, ls, lth, lph)
       class(vector_grid) :: self
@@ -38,6 +67,16 @@ contains
 
    end subroutine init_vector_grid
 
+   subroutine init_vector_vectors(self, v1, v2, v3)
+      real(8), intent(in), dimension(:,:,:) :: v1, v2, v3
+      class(vector_grid) :: self
+
+      self%u1 = v1
+      self%u2 = v2
+      self%u3 = v3
+
+   end subroutine init_vector_vectors
+
    elemental function cross_vector_grid(vec_a, vec_b) result(vec_c)
       type(vector_grid), intent(in) :: vec_a, vec_b
       type(vector_grid) :: vec_c
@@ -48,15 +87,34 @@ contains
 
    end function cross_vector_grid
 
+   function sum_vector_3(vec1, vec2, vec3) result(out)
+      type(vector_grid), intent(in) :: vec1, vec2, vec3
+      type(vector_grid) :: out
+
+      out%u1 = vec1%u1 + vec2%u1 + vec3%u1
+      out%u2 = vec1%u2 + vec2%u2 + vec3%u2
+      out%u3 = vec1%u3 + vec2%u3 + vec3%u3
+   end function sum_vector_3
+
    function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
       type(vector_grid), intent(in) :: vec_a
       real(8), dimension(:,:,:), intent(in) :: sc_grid
       type(vector_grid):: vec_b
 
       vec_b%u1 = vec_a%u1 * sc_grid
-      vec_b%u1 = vec_a%u1 * sc_grid
-      vec_b%u1 = vec_a%u1 * sc_grid
+      vec_b%u2 = vec_a%u2 * sc_grid
+      vec_b%u3 = vec_a%u3 * sc_grid
    end function product_with_scalar_grid
+
+   function product_with_scalar(vec_a, scalar) result(vec_b)
+      type(vector_grid), intent(in) :: vec_a
+      real(8), intent(in) :: scalar
+      type(vector_grid):: vec_b
+
+      vec_b%u1 = vec_a%u1 * scalar
+      vec_b%u2 = vec_a%u2 * scalar
+      vec_b%u3 = vec_a%u3 * scalar
+   end function product_with_scalar
 
    function dot_vector_grid(vec_a, vec_b) result(grid_c)
       type(vector_grid), intent(in) :: vec_a, vec_b

@@ -1,6 +1,6 @@
 module potential
    use constants
-   use helper
+
    implicit none
 
 contains
@@ -59,6 +59,18 @@ contains
       gradpar_pot_super%u2 = gradpar_pot_super%u2 * b_super%u2 !  Lo hago así para hacer menos operaciones
 
    end subroutine potential_gradients
+
+   function outer(a, b) result(c)
+      real(8) :: a(:), b(:)
+      real(8) :: c(size(a), size(b))
+
+      integer(8) :: i, j
+      do i = 1, size(b)
+         do j = 1, size(a)
+            c(j, i) = a(j)*b(i)
+         end do
+      end do
+   end function outer
 
 
 end module potential

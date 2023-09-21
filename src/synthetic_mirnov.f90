@@ -21,7 +21,7 @@ contains
       th = th_b
       ph = ph_b
 
-      delta_s = s(2)-s(1)
+      delta_s = s(2) - s(1)
       delta_th = th(2) - th(1)
       delta_ph = ph(2) - ph(1)
 
@@ -58,9 +58,9 @@ contains
       integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
       real(8), intent(in), dimension(3, len_s_b, len_th_b, len_ph_b) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
 
-      call e_sub_s%init(e_sub_s_b)
-      call e_sub_th%init(e_sub_th_b)
-      call e_sub_ph%init(e_sub_ph_b)
+      call e_sub_s%init_grid(e_sub_s_b)
+      call e_sub_th%init_grid(e_sub_th_b)
+      call e_sub_ph%init_grid(e_sub_ph_b)
 
       call g_sub_ij%init(e_sub_s, e_sub_th, e_sub_ph)
 
@@ -78,29 +78,14 @@ contains
    end subroutine init_pot
 
    subroutine init_coils(xyzs, ncoils)
-      use global, only : coil_positions, num_coils, r_coil, xyz_grid, abs_r_coil, &
-         inv_abs_r_coil_squared, len_s, len_th, len_ph
-      use types, only : dot_vector_grid
+      use main, only: init_coils_main
+      use global, only : coil_positions, num_coils
       integer(8), intent(in) :: ncoils
       real(8), intent(in) :: xyzs(3, ncoils)
-      integer :: idx_coil
 
       coil_positions = xyzs
       num_coils = ncoils
-      allocate(inv_abs_r_coil_squared(num_coils, len_s, len_th, len_ph))
-      allocate(r_coil(num_coils))
-
-      !$OMP PARALLEL DO PRIVATE(idx_coil)
-      do idx_coil = 1, num_coils
-         r_coil(idx_coil)%u1 = xyz_grid%u1 - coil_positions(1,idx_coil)
-         r_coil(idx_coil)%u2 = xyz_grid%u2 - coil_positions(2,idx_coil)
-         r_coil(idx_coil)%u3 = xyz_grid%u3 - coil_positions(3,idx_coil)
-         inv_abs_r_coil_squared(idx_coil, :, :, :) = dot_vector_grid(r_coil(idx_coil), r_coil(idx_coil))
-      end do
-      !$OMP END PARALLEL DO
-      abs_r_coil = sqrt(inv_abs_r_coil_squared)
-      inv_abs_r_coil_squared = 1./inv_abs_r_coil_squared
-      print *, (sum(abs_r_coil))
+      call init_coils_main
 
    end subroutine init_coils
 
