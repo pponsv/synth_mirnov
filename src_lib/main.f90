@@ -19,14 +19,16 @@ contains
       do idx_time=1, size(t)
 
          call potential_gradients(t(idx_time))
+
          gradpar_pot_sub = lower_indices(gradpar_pot_super, g_sub_ij)
          j_super = curl(lower_indices(curl(gradpar_pot_sub, inv_sqrt_g), g_sub_ij), inv_sqrt_g)
 
          !Pasar curl a cartesianas (multiplicando por e_sub_i)
          print *, 'TIMESTEP: ', idx_time, '  t=', t(idx_time)
 
-         !$OMP PARALLEL DO PRIVATE(idx_coil, idx_time, integrand)
+         !$OMP PARALLEL DO PRIVATE(idx_coil, integrand)
          do idx_coil=1, num_coils
+            
             integrand = sum_three_vector_grids(&
                product_with_scalar_grid(r_x_e_s(idx_coil),  j_super%u1), &
                product_with_scalar_grid(r_x_e_th(idx_coil), j_super%u2), &

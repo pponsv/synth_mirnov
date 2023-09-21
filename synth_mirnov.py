@@ -72,16 +72,16 @@ potentials = [
         s0=0.3,
         sigma=0.03,
     ),
-    potential(
-        booz.s,
-        m=4,
-        n=7,
-        freq=80,
-        profile_function=gaussian_profile,
-        amp=5 + 0.1j,
-        s0=0.4,
-        sigma=0.03,
-    ),
+    # potential(
+    #     booz.s,
+    #     m=4,
+    #     n=7,
+    #     freq=80,
+    #     profile_function=gaussian_profile,
+    #     amp=5 + 0.1j,
+    #     s0=0.4,
+    #     sigma=0.03,
+    # ),
 ]
 
 tic()
