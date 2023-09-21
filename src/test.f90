@@ -2,8 +2,10 @@ program test
 
    implicit none
 
-   real :: a(100,100,100,3)
+   real :: a(100,100,100,3), b
 
-   a = 2.
+   b = 2 ** (-3./2)
+
+   print *, b
 
 end program test

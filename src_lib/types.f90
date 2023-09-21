@@ -11,11 +11,6 @@ module types
       procedure :: alloc => alloc_vector_grid
    end type vector_grid
 
-   type base_grid
-      type(vector_grid) :: e1, e2, e3
-   contains
-
-   end type base_grid
 
    type metric_tensor
       real(8), allocatable, dimension(:,:,:) :: g11, g12, g13, g21, g22, g23, g31, g32, g33
@@ -25,27 +20,6 @@ module types
 
 contains
 
-   subroutine init_base_grid(self, e1, e2, e3)
-      class(base_grid) :: self
-      type(vector_grid) :: e1, e2, e3
-
-      self%e1 = e1
-      self%e2 = e2
-      self%e3 = e3
-   end subroutine init_base_grid
-
-   function project_over_base(base, vec) result(out)
-      type(base_grid), intent(in) :: base
-      type(vector_grid), intent(in) :: vec
-      type(vector_grid) :: out
-      type(base_grid) :: tmp
-
-      tmp%e1 = product_with_scalar_grid(base%e1, vec%u1)
-      tmp%e2 = product_with_scalar_grid(base%e2, vec%u2)
-      tmp%e3 = product_with_scalar_grid(base%e3, vec%u3)
-
-      out = sum_vector_3(tmp%e1, tmp%e2, tmp%e3)
-   end function project_over_base
 
    subroutine alloc_vector_grid(self, ls, lth, lph)
       class(vector_grid) :: self
@@ -87,14 +61,14 @@ contains
 
    end function cross_vector_grid
 
-   function sum_vector_3(vec1, vec2, vec3) result(out)
+   function sum_three_vector_grids(vec1, vec2, vec3) result(out)
       type(vector_grid), intent(in) :: vec1, vec2, vec3
       type(vector_grid) :: out
 
       out%u1 = vec1%u1 + vec2%u1 + vec3%u1
       out%u2 = vec1%u2 + vec2%u2 + vec3%u2
       out%u3 = vec1%u3 + vec2%u3 + vec3%u3
-   end function sum_vector_3
+   end function sum_three_vector_grids
 
    function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
       type(vector_grid), intent(in) :: vec_a

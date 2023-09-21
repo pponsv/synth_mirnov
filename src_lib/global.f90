@@ -8,9 +8,8 @@ module global
    !  Coil positions
    integer(8) :: num_coils
    real(8), allocatable :: coil_positions(:,:)
-   type(vector_grid), allocatable :: r_coil(:)
-   type(base_grid), allocatable :: r_coil_sub(:)
-   real(8), allocatable, dimension(:,:,:,:) :: abs_r_coil, inv_abs_r_coil_squared
+   type(vector_grid), allocatable :: r_coil(:), r_x_e_s(:), r_x_e_th(:), r_x_e_ph(:)
+   real(8), allocatable, dimension(:,:,:,:) :: r_3_sqrtg
 
    !  Geometry and magnetic field
 
@@ -23,7 +22,7 @@ module global
    real(8), allocatable :: iota(:)
    !  Magnetic field
    type(vector_grid) :: b_super, xyz_grid
-   real(8), allocatable, dimension(:,:,:) :: mod_b, sqrt_g, inv_mod_b2, vol_element
+   real(8), allocatable, dimension(:,:,:) :: mod_b, sqrt_g, inv_sqrt_g, inv_mod_b2, vol_element
    !  Basis and metric tensor
    type(vector_grid) :: e_sub_s, e_sub_th, e_sub_ph
    type(metric_tensor) :: g_sub_ij

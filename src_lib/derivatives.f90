@@ -31,7 +31,8 @@ contains
       !$OMP END PARALLEL DO
    end function gradient
 
-   function curl(in) result(out)
+   function curl(in, inv_sqrtg) result(out)
+      real(8), intent(in) :: inv_sqrtg(:,:,:)
       type(vector_grid), intent(in):: in
       type(vector_grid) :: out, grad_1, grad_2, grad_3
 
@@ -39,9 +40,9 @@ contains
       grad_2 = gradient(in%u2)
       grad_3 = gradient(in%u3)
 
-      out%u1 = grad_3%u2 - grad_2%u3
-      out%u2 = grad_1%u3 - grad_3%u1
-      out%u3 = grad_2%u1 - grad_1%u2
+      out%u1 = (grad_3%u2 - grad_2%u3) * inv_sqrtg
+      out%u2 = (grad_1%u3 - grad_3%u1) * inv_sqrtg
+      out%u3 = (grad_2%u1 - grad_1%u2) * inv_sqrtg
 
    end function curl
 

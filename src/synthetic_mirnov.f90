@@ -36,7 +36,7 @@ contains
       mod_b = b_mod_b
       inv_mod_b2 = b_mod_b**(-2)
       sqrt_g = sqrt_g_b
-      vol_element = sqrt_g * delta_s * delta_th * delta_ph
+      inv_sqrt_g = 1./sqrt_g_b
 
       allocate(B_super%u1, B_super%u2, B_super%u3, mold=b_mod_b)
       B_super%u1 = 0

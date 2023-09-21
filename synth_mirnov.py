@@ -31,7 +31,7 @@ polarr = lc.Mirnov_P_Array(None)
 coil_positions = [coil.xyz.flatten() for coil in torarr] + [
     coil.xyz.flatten() for coil in polarr
 ]
-coil_positions = np.array(coil_positions).T
+coil_positions = np.array(coil_positions)[0:3].T
 # coil_positions = coil_positions[:, 0]
 print(coil_positions)
 
@@ -60,7 +60,7 @@ else:
         phi=np.linspace(0, 2 * np.pi, 4 + 1)[:-1],
     )
 
-time = np.linspace(0, 0.1, 11)
+time = np.linspace(0, 0.02, 21)
 potentials = [
     potential(
         booz.s,
@@ -72,19 +72,19 @@ potentials = [
         s0=0.3,
         sigma=0.03,
     ),
-    # potential(
-    #     booz.s,
-    #     m=4,
-    #     n=7,
-    #     freq=320,
-    #     profile_function=gaussian_profile,
-    #     amp=5 + 0.1j,
-    #     s0=0.4,
-    #     sigma=0.03,
-    # ),
+    potential(
+        booz.s,
+        m=4,
+        n=7,
+        freq=80,
+        profile_function=gaussian_profile,
+        amp=5 + 0.1j,
+        s0=0.4,
+        sigma=0.03,
+    ),
 ]
 
-
+tic()
 sm.init_booz(
     s_b=booz.s,
     th_b=booz.th,
@@ -110,11 +110,12 @@ sm.init_pot(
     time=time,
 )
 sm.init_coils(coil_positions)
+t_init = toc("Initialization")
 
 tic()
-print(coil_positions.shape[1])
 db = sm.run(coil_positions.shape[1], len(time))
-toc()
+t_loop = toc("Main Loop")
+print(f"Time elapsed\t{t_loop+t_init}\tTotal")
 plt.plot(time, db[0, 0, :])
 plt.plot(time, db[0, 1, :])
 plt.plot(time, db[0, 2, :])
