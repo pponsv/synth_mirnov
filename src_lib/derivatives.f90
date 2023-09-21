@@ -15,20 +15,20 @@ contains
 
       call out%alloc(len_s, len_th, len_ph)
 
-      !$OMP PARALLEL DO PRIVATE(k, j)
+      ! $OMP PARALLEL DO PRIVATE(k, j)
       do k=1, len_ph
          do j=1, len_th
             out%u1(:, j, k) = finite_differences(in(:, j, k), delta_s)
          end do
       end do
-      !$OMP END PARALLEL DO
+      ! $OMP END PARALLEL DO
 
-      !$OMP PARALLEL DO PRIVATE(i)
+      ! $OMP PARALLEL DO PRIVATE(i)
       do i=1, len_s
          out%u2(i, :, :) = ifft_2d(complex(0,1) * ftheta * fft_2d(in(i, :, :)))
          out%u3(i, :, :) = ifft_2d(complex(0,1) * fphi * fft_2d(in(i, :, :)))
       end do
-      !$OMP END PARALLEL DO
+      ! $OMP END PARALLEL DO
    end function gradient
 
    function curl(in) result(out)

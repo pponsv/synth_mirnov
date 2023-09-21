@@ -104,20 +104,22 @@ contains
 
    end subroutine init_coils
 
-   subroutine main_loop
+   subroutine main_loop(db_coils, num_coils_tmp, len_t_tmp)
       use global
       use potential, only : potential_gradients
       use derivatives, only: curl, gradient
       use types
+      real(8), intent(out) :: db_coils(num_coils_tmp, 3, len_t_tmp)
+      integer, intent(in) :: num_coils_tmp, len_t_tmp
       integer :: idx_time
       integer :: idx_coil
       integer :: i, j, k
       real(8) :: tmp
       type(vector_grid) :: integrand
 
-      print *, "Main loop", num_coils
+      print *, "Main loop", num_coils, size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
 
-      !! $OMP PARALLEL DO PRIVATE(i, j, k, idx_time, idx_coil)
+      ! $OMP PARALLEL DO PRIVATE(idx_time, idx_coil, integrand, gradpar_pot_sub, curl_curl_gradpar_pot)
       do idx_time=1, size(t)
 
          call potential_gradients(t(idx_time))
@@ -127,15 +129,19 @@ contains
          !Pasar curl a cartesianas (multiplicando por e_sub_i)
          print *, 'TIMESTEP: ', idx_time, '  t=', t(idx_time)
 
-         ! $OMP PARALLEL DO PRIVATE(idx_coil)
+         ! $OMP PARALLEL DO PRIVATE(idx_coil, integrand)
          do idx_coil=1, num_coils
-            print *, idx_coil, "debug"
-            ! integrand = cross_vector_grid(curl_curl_gradpar_pot, r_coil(idx_coil))
-            ! tmp = sum(integrand%u1 * vol_element)
+            ! print *, idx_coil, "debug"
+            integrand = cross_vector_grid(curl_curl_gradpar_pot, r_coil(idx_coil))
+            ! $OMP WORKSHARE
+            db_coils(idx_coil, 1, idx_time) = sum(integrand%u1 * vol_element)
+            db_coils(idx_coil, 2, idx_time) = sum(integrand%u2 * vol_element)
+            db_coils(idx_coil, 3, idx_time) = sum(integrand%u3 * vol_element)
+            ! $OMP END WORKSHARE
          end do
          ! $OMP END PARALLEL DO
       end do
-      !! $OMP END PARALLEL DO
+      ! $OMP END PARALLEL DO
    end subroutine main_loop
 
    function test_fft_main(in) result(out)

@@ -8,15 +8,15 @@ contains
    subroutine plan_ffts()
       use global, only : fft_plan_2d, ifft_plan_2d, len_th, len_ph
 
-      real(8) :: in(len_th, len_ph)
-      complex(8) :: out(len_th, len_ph)
+      ! real(8) :: in(len_th, len_ph)
+      complex(8) :: out(len_th, len_ph), in(len_th, len_ph)
 
       print *, 'PLANS', fft_plan_2d, ifft_plan_2d
 
-      fft_plan_2d = fftw_plan_dft_r2c_2d(int(len_ph, 4), int(len_th, 4), in, out, &
-         FFTW_ESTIMATE)
-      ifft_plan_2d = fftw_plan_dft_c2r_2d(int(len_ph, 4), int(len_th, 4), out, in, &
-         FFTW_ESTIMATE)
+      fft_plan_2d = fftw_plan_dft_2d(int(len_ph, 4), int(len_th, 4), in, out, &
+         FFTW_FORWARD, FFTW_ESTIMATE)
+      ifft_plan_2d = fftw_plan_dft_2d(int(len_ph, 4), int(len_th, 4), out, in, &
+         FFTW_BACKWARD, FFTW_ESTIMATE)
 
       print *, 'PLANS', fft_plan_2d, ifft_plan_2d
 
@@ -25,18 +25,19 @@ contains
    function fft_2d(in) result(out)
       use global, only : len_th, len_ph, fft_plan_2d
       real(8) :: in(len_th, len_ph)
-      complex(8) :: out(len_th, len_ph)
+      complex(8) :: out(len_th, len_ph), tmp(len_th, len_ph)
 
-      call fftw_execute_dft_r2c(fft_plan_2d, in, out)
+      tmp = in
+      call fftw_execute_dft(fft_plan_2d, tmp, out)
 
    end function fft_2d
 
    function ifft_2d(in) result(out)
       use global, only : len_th, len_ph, ifft_plan_2d
-      complex(8) :: in(len_th, len_ph)
-      real(8) :: out(len_th, len_ph)
+      complex(8) :: in(len_th, len_ph), out(len_th, len_ph)
+      ! real(8) :: out(len_th, len_ph)
 
-      call fftw_execute_dft_c2r(ifft_plan_2d, in, out)
+      call fftw_execute_dft(ifft_plan_2d, in, out)
       out = out / (len_th * len_ph)
 
    end function ifft_2d

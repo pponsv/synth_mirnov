@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import vmec_library as vl
 import libreria_calibracion as lc
-from synth_mirnov import synthetic_mirnov as sm
+from synth_mirnov import synthetic_mirnov as sm  # type: ignore
 from tictoc import tic, toc
 
 LOAD_BOOZ = True
@@ -60,12 +60,13 @@ else:
         phi=np.linspace(0, 2 * np.pi, 4 + 1)[:-1],
     )
 
+time = np.linspace(0, 0.1, 11)
 potentials = [
     potential(
         booz.s,
         m=5,
         n=8,
-        freq=150,
+        freq=131,
         profile_function=gaussian_profile,
         amp=15,
         s0=0.3,
@@ -75,9 +76,9 @@ potentials = [
         booz.s,
         m=4,
         n=7,
-        freq=200,
+        freq=320,
         profile_function=gaussian_profile,
-        amp=10 + 0.1j,
+        amp=5 + 0.1j,
         s0=0.4,
         sigma=0.03,
     ),
@@ -106,31 +107,36 @@ sm.init_pot(
     [pot.m for pot in potentials],
     [pot.n for pot in potentials],
     [pot.freq for pot in potentials],
-    time=np.linspace(0, 0.1, 20),
+    time=time,
 )
 sm.init_coils(coil_positions)
 
 tic()
-# sm.main_loop()
+print(coil_positions.shape[1])
+db = sm.main_loop(coil_positions.shape[1], len(time))
 toc()
-
-ths, phs = np.meshgrid(booz.th, booz.ph)
-fft_test = np.sin(3 * ths - 2 * phs).T
-print(fft_test.shape)
-print(len(booz.th), len(booz.ph))
-out = sm.test_fft_main(fft_test)
-nout = np.fft.fft2(fft_test)
-
-print(np.isclose(out, nout))
-print(out / nout)
-fig, ax = plt.subplots(3, 2)
-ax[0, 0].pcolor(np.abs(out))
-ax[1, 0].pcolor(np.real(out))
-ax[2, 0].pcolor(np.imag(out))
-ax[0, 1].pcolor(np.abs(nout))
-ax[1, 1].pcolor(np.real(nout))
-ax[2, 1].pcolor(np.imag(nout))
-
-plt.figure()
-plt.pcolor(np.abs(out - nout))
+plt.plot(time, db[0, 0, :])
+plt.plot(time, db[0, 1, :])
+plt.plot(time, db[0, 2, :])
 plt.show()
+# ths, phs = np.meshgrid(booz.th, booz.ph)
+# fft_test = np.sin(3 * ths - 2 * phs).T
+# print(fft_test.shape)
+# print(len(booz.th), len(booz.ph))
+# out = sm.test_fft_main(fft_test)
+# nout = np.fft.fft2(fft_test)
+
+# print(np.isclose(out, nout))
+# print(np.all(np.isclose(out, nout)))
+# print(out / nout)
+# fig, ax = plt.subplots(3, 2)
+# ax[0, 0].pcolor(np.abs(out))
+# ax[1, 0].pcolor(np.real(out))
+# ax[2, 0].pcolor(np.imag(out))
+# ax[0, 1].pcolor(np.abs(nout))
+# ax[1, 1].pcolor(np.real(nout))
+# ax[2, 1].pcolor(np.imag(nout))
+
+# plt.figure()
+# plt.pcolor(np.abs(out - nout))
+# plt.show()

@@ -38,7 +38,7 @@ contains
 
    end subroutine init_vector_grid
 
-   function cross_vector_grid(vec_a, vec_b) result(vec_c)
+   elemental function cross_vector_grid(vec_a, vec_b) result(vec_c)
       type(vector_grid), intent(in) :: vec_a, vec_b
       type(vector_grid) :: vec_c
 

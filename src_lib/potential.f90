@@ -40,18 +40,18 @@ contains
       real(8), intent(in) :: time
       integer :: i, j, k
 
-      !$OMP PARALLEL DO PRIVATE(i, j, k)
+      ! $OMP PARALLEL DO PRIVATE(i, j, k)
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
                dpot_dth(i, j, k) = sum(potnm(:,i) * (complex(0,1) * ms_pot) * &
-                  exp_mth_pot(:,j) * exp_nph_pot(:,k) * exp(complex(0, -1) * ws_pot))
+                  exp_mth_pot(:,j) * exp_nph_pot(:,k) * exp(complex(0, -1) * ws_pot * time))
                dpot_dph(i, j, k) = sum(potnm(:,i) * (complex(0,1) * ns_pot) * &
-                  exp_mth_pot(:,j) * exp_nph_pot(:,k) * exp(complex(0, -1) * ws_pot))
+                  exp_mth_pot(:,j) * exp_nph_pot(:,k) * exp(complex(0, -1) * ws_pot * time))
             end do
          end do
       end do
-      !$OMP END PARALLEL DO
+      ! $OMP END PARALLEL DO
 
       gradpar_pot_super%u1 = 0
       gradpar_pot_super%u2 = inv_mod_b2 * (b_super%u2 * dpot_dth + b_super%u3 * dpot_dph)
