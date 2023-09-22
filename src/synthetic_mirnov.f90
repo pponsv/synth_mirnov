@@ -38,9 +38,10 @@ contains
       sqrt_g = sqrt_g_b
       inv_sqrt_g = 1./sqrt_g_b
 
-      allocate(B_super%u1, B_super%u2, B_super%u3, mold=b_mod_b)
+      call b_super%alloc(len_s, len_th, len_ph)
+      ! allocate(B_super%u1, B_super%u2, B_super%u3, mold=b_mod_b)
       B_super%u1 = 0
-      B_super%u3 = 1/(2*pi*sqrt_g)*phi_b_g
+      B_super%u3 = -1/(2*pi*sqrt_g)*phi_b_g
       do i=1, len_s
          B_super%u2(i, :, :) = B_super%u3(i, :, :) * iota(i)
       end do
@@ -69,9 +70,9 @@ contains
    subroutine init_pot(pot_profiles, ms, ns, fs, time, num_modes, len_time, len_s)
       use potential, only : initialize_potential
       integer(8), intent(in) :: num_modes, len_time, len_s
-      integer(8) :: ms(num_modes), ns(num_modes)
-      real(8) :: fs(num_modes), time(len_time)
-      complex(8) :: pot_profiles(num_modes, len_s)
+      integer(8), intent(in) :: ms(num_modes), ns(num_modes)
+      real(8), intent(in) :: fs(num_modes), time(len_time)
+      complex(8), intent(in) :: pot_profiles(num_modes, len_s)
 
       call initialize_potential(pot_profiles, ms, ns, fs, time)
 

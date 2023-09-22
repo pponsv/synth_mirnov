@@ -12,8 +12,8 @@ sm.test_meshgrid()
 # exit()
 
 
-def gaussian_profile(s, s0, amp, sigma):
-    return amp * np.exp(-((s - s0) ** 2) / sigma)
+def gaussian_profile(s, s0, amp, sigma, phase=0):
+    return amp * np.exp(1j * phase) * np.exp(-((s - s0) ** 2) / sigma)
 
 
 class potential:
@@ -28,18 +28,20 @@ class potential:
 torarr = lc.Mirnov_T_Array(None)
 polarr = lc.Mirnov_P_Array(None)
 
-coil_positions = [coil.xyz.flatten() for coil in torarr] + [
-    coil.xyz.flatten() for coil in polarr
-]
-coil_positions = np.array(coil_positions)[0:3].T
+# coil_positions = [coil.xyz.flatten() for coil in torarr] + [
+#     coil.xyz.flatten() for coil in polarr
+# ]
+coil_positions = [coil.xyz.flatten() for coil in polarr]
+coil_positions = np.array(coil_positions)[:].T
 # coil_positions = coil_positions[:, 0]
 print(coil_positions)
 
 if LOAD_BOOZ is False:
     booz = vl.Booz(
-        "./device/tjii/100_44_64/boozmn_100_44_64_0.0.nc",
-        theta=np.linspace(0, 2 * np.pi, 2 + 1)[:-1],
-        phi=np.linspace(0, 2 * np.pi, 3 + 1)[:-1],
+        # "./device/tjii/100_44_64/boozmn_100_44_64_0.0.nc",
+        "/home/pedro/MEGA/00_doctorado/research/VMEC/TJ-II/100_44_64.0.0/boozmn_100_44_64_0.0.nc",
+        theta=np.linspace(0, 2 * np.pi, 64 + 1)[:-1],
+        phi=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
     )
     booz.get_vectors()
     if SAVE_BOOZ is True:
@@ -64,11 +66,12 @@ time = np.linspace(0, 0.02, 21)
 potentials = [
     potential(
         booz.s,
-        m=5,
-        n=8,
+        m=8,
+        n=5,
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
+        phase=np.pi / 2,
         s0=0.3,
         sigma=0.03,
     ),
@@ -119,6 +122,11 @@ print(f"Time elapsed\t{t_loop+t_init}\tTotal")
 plt.plot(time, db[0, 0, :])
 plt.plot(time, db[0, 1, :])
 plt.plot(time, db[0, 2, :])
+
+plt.figure()
+plt.plot(db[:, 0, 0])
+plt.plot(db[:, 1, 0])
+plt.plot(db[:, 2, 0])
 plt.show()
 # ths, phs = np.meshgrid(booz.th, booz.ph)
 # fft_test = np.sin(3 * ths - 2 * phs).T

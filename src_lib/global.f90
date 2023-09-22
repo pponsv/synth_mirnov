@@ -8,7 +8,7 @@ module global
    !  Coil positions
    integer(8) :: num_coils
    real(8), allocatable :: coil_positions(:,:)
-   type(vector_grid), allocatable :: r_coil(:), r_x_e_s(:), r_x_e_th(:), r_x_e_ph(:)
+   type(vector_grid), allocatable :: r_coil(:), e_sub_s_x_r(:), e_sub_th_x_r(:), e_sub_ph_x_r(:)
    real(8), allocatable, dimension(:,:,:,:) :: r_3_sqrtg
 
    !  Geometry and magnetic field

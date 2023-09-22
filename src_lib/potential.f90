@@ -16,7 +16,7 @@ contains
       use global
       integer(8), intent(in) :: ms(:), ns(:)
       real(8), intent(in) :: fs(:), time(:)
-      complex(8) :: profiles(:,:)
+      complex(8), intent(in) :: profiles(:,:)
       integer :: i
 
       num_modes = size(ms)

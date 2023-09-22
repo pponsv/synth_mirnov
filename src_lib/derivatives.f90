@@ -36,19 +36,23 @@ contains
       type(vector_grid), intent(in):: in
       type(vector_grid) :: out, grad_1, grad_2, grad_3
 
+      ! call out%alloc(size(inv_sqrtg, 1, kind=8), size(inv_sqrtg, 2, kind=8), size(inv_sqrtg, 3, kind=8))
+
       grad_1 = gradient(in%u1)
       grad_2 = gradient(in%u2)
       grad_3 = gradient(in%u3)
 
+      ! $OMP WORKSHARE
       out%u1 = (grad_3%u2 - grad_2%u3) * inv_sqrtg
       out%u2 = (grad_1%u3 - grad_3%u1) * inv_sqrtg
       out%u3 = (grad_2%u1 - grad_1%u2) * inv_sqrtg
+      ! $OMP END WORKSHARE
 
    end function curl
 
-   function finite_differences(y, dx) result(dy)
-      real(8), intent(in) :: y(:)
-      real(8) :: dy(size(y)), dx
+   pure function finite_differences(y, dx) result(dy)
+      real(8), intent(in) :: y(:), dx
+      real(8) :: dy(size(y))
       integer :: i, len_y
 
       len_y = size(y)

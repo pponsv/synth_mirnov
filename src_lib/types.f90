@@ -55,13 +55,13 @@ contains
       type(vector_grid), intent(in) :: vec_a, vec_b
       type(vector_grid) :: vec_c
 
-      vec_c%u1 = vec_a%u2 * vec_b%u3 - vec_b%u2 * vec_a%u3
-      vec_c%u2 = vec_a%u3 * vec_b%u1 - vec_b%u3 * vec_a%u1
-      vec_c%u3 = vec_a%u1 * vec_b%u2 - vec_b%u1 * vec_a%u2
+      vec_c%u1 = vec_a%u2 * vec_b%u3 - vec_a%u3 * vec_b%u2
+      vec_c%u2 = vec_a%u3 * vec_b%u1 - vec_a%u1 * vec_b%u3
+      vec_c%u3 = vec_a%u1 * vec_b%u2 - vec_a%u2 * vec_b%u1
 
    end function cross_vector_grid
 
-   function sum_three_vector_grids(vec1, vec2, vec3) result(out)
+   pure function sum_three_vector_grids(vec1, vec2, vec3) result(out)
       type(vector_grid), intent(in) :: vec1, vec2, vec3
       type(vector_grid) :: out
 
@@ -70,7 +70,7 @@ contains
       out%u3 = vec1%u3 + vec2%u3 + vec3%u3
    end function sum_three_vector_grids
 
-   function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
+   pure function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
       type(vector_grid), intent(in) :: vec_a
       real(8), dimension(:,:,:), intent(in) :: sc_grid
       type(vector_grid):: vec_b
