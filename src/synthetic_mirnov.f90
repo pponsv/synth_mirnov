@@ -34,14 +34,15 @@ contains
 
       iota = iota_b
       mod_b = b_mod_b
-      inv_mod_b2 = b_mod_b**(-2)
+      inv_mod_b2 = 1. / b_mod_b**2
       sqrt_g = sqrt_g_b
-      inv_sqrt_g = 1./sqrt_g_b
+      inv_sqrt_g = 1. / sqrt_g_b
 
       call b_super%alloc(len_s, len_th, len_ph)
       ! allocate(B_super%u1, B_super%u2, B_super%u3, mold=b_mod_b)
       B_super%u1 = 0
-      B_super%u3 = -1/(2*pi*sqrt_g)*phi_b_g
+      B_super%u3 = -1/(2*pi*sqrt_g)*phi_b_g ! 2*pi sobra??
+      ! B_super%u3 = -1/(sqrt_g)*phi_b_g
       do i=1, len_s
          B_super%u2(i, :, :) = B_super%u3(i, :, :) * iota(i)
       end do
@@ -55,9 +56,10 @@ contains
    end subroutine init_booz
 
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
-      use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij
+      use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
       integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
       real(8), intent(in), dimension(3, len_s_b, len_th_b, len_ph_b) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
+      integer :: i, j, k
 
       call e_sub_s%init_grid(e_sub_s_b)
       call e_sub_th%init_grid(e_sub_th_b)
@@ -115,6 +117,14 @@ contains
 
    end function test_fft_main
 
+   subroutine test_magnetic_field(i, j, k)
+      use global
+      integer, intent(in) :: i, j, k
+      print *,  b_super%u2(i, j, k) *e_sub_th%u1(i, j, k) + b_super%u3(i, j, k) * e_sub_ph%u1(i, j, k)
+      print *,  b_super%u2(i, j, k) *e_sub_th%u2(i, j, k) + b_super%u3(i, j, k) * e_sub_ph%u2(i, j, k)
+      print *,  b_super%u2(i, j, k) *e_sub_th%u3(i, j, k) + b_super%u3(i, j, k) * e_sub_ph%u3(i, j, k)
+   end subroutine test_magnetic_field
+
    function get_potnm(ls, nm) result(out)
       use global, only: potnm
       integer :: ls, nm
@@ -137,6 +147,27 @@ contains
       print *, 'BB'
       print *, bb(1,:)
    end subroutine test_meshgrid
+
+   subroutine test_gradient(ns, nth, nph, grid, grad)
+      use Derivatives
+      use types
+      use global, only : len_s, len_ph, len_th
+      integer, intent(in) :: ns, nth, nph
+      real(8), intent(in) :: grid(ns, nth, nph)
+      type(vector_grid) :: tgrad
+      real(8), intent(out) :: grad(3, ns, nth, nph)
+
+      len_s =  ns
+      len_ph = nph
+      len_th = nth
+
+      tgrad = gradient(grid)
+
+      grad(1,:,:,:) = tgrad%u1
+      grad(2,:,:,:) = tgrad%u2
+      grad(3,:,:,:) = tgrad%u3
+
+   end subroutine test_gradient
 
 
 end module synthetic_mirnov

@@ -10,12 +10,12 @@ contains
       integer :: idx_time
       integer :: idx_coil
       integer :: i, j, k
-      real(8) :: dbx, dby, dbz
-      type(vector_grid) :: integrand
+      real(8) :: dbx, dby, dbz, int_factor
 
       print *, "MAIN LOOP"
       print *, "num_coils=", num_coils, "len_t=", len_t
 
+      int_factor = delta_s * delta_th * delta_ph
       db_coils = 0.
 
       do idx_time=1, size(t)
@@ -40,22 +40,22 @@ contains
             do k=1, len_ph
                do j=1, len_th
                   do i=1, len_s
-                     dbx = dbx + e_sub_s_x_r(idx_coil)%u1(i, j, k) * j_super%u1(i, j, k) + &
+                     dbx = dbx + (e_sub_s_x_r(idx_coil)%u1(i, j, k) * j_super%u1(i, j, k) + &
                         e_sub_th_x_r(idx_coil)%u1(i, j, k) * j_super%u2(i, j, k) + &
-                        e_sub_ph_x_r(idx_coil)%u1(i, j, k) * j_super%u3(i, j, k)
-                     dby = dby + e_sub_s_x_r(idx_coil)%u2(i, j, k) * j_super%u1(i, j, k) + &
+                        e_sub_ph_x_r(idx_coil)%u1(i, j, k) * j_super%u3(i, j, k)) * int_factor
+                     dby = dby + (e_sub_s_x_r(idx_coil)%u2(i, j, k) * j_super%u1(i, j, k) + &
                         e_sub_th_x_r(idx_coil)%u2(i, j, k) * j_super%u2(i, j, k) + &
-                        e_sub_ph_x_r(idx_coil)%u2(i, j, k) * j_super%u3(i, j, k)
-                     dbz = dbz + e_sub_s_x_r(idx_coil)%u3(i, j, k) * j_super%u1(i, j, k) + &
+                        e_sub_ph_x_r(idx_coil)%u2(i, j, k) * j_super%u3(i, j, k)) * int_factor
+                     dbz = dbz + (e_sub_s_x_r(idx_coil)%u3(i, j, k) * j_super%u1(i, j, k) + &
                         e_sub_th_x_r(idx_coil)%u3(i, j, k) * j_super%u2(i, j, k) + &
-                        e_sub_ph_x_r(idx_coil)%u3(i, j, k) * j_super%u3(i, j, k)
+                        e_sub_ph_x_r(idx_coil)%u3(i, j, k) * j_super%u3(i, j, k))* int_factor
                   end do
                end do
             end do
             !$OMP END PARALLEL DO
-            db_coils(idx_coil, 1, idx_time) = dbx
-            db_coils(idx_coil, 2, idx_time) = dby
-            db_coils(idx_coil, 3, idx_time) = dbz
+            db_coils(idx_coil, 1, idx_time) = -dbx/(4*pi)
+            db_coils(idx_coil, 2, idx_time) = -dby/(4*pi)
+            db_coils(idx_coil, 3, idx_time) = -dbz/(4*pi)
 
             !    integrand = sum_three_vector_grids(&
             !       product_with_scalar_grid(r_x_e_s(idx_coil),  j_super%u1), &
@@ -87,7 +87,7 @@ contains
          r_coil(idx_coil)%u1 = coil_positions(1,idx_coil) - xyz_grid%u1
          r_coil(idx_coil)%u2 = coil_positions(2,idx_coil) - xyz_grid%u2
          r_coil(idx_coil)%u3 = coil_positions(3,idx_coil) - xyz_grid%u3
-         r_3_sqrtg(:, :, :, idx_coil) = PI * sqrt_g * sqrt(dot_vector_grid(r_coil(idx_coil), r_coil(idx_coil)))**(-3)
+         r_3_sqrtg(:, :, :, idx_coil) = sqrt_g * sqrt(dot_vector_grid(r_coil(idx_coil), r_coil(idx_coil)))**(-3)
          e_sub_s_x_r(idx_coil)  = product_with_scalar_grid(cross_vector_grid(e_sub_s,  r_coil(idx_coil)), &
             r_3_sqrtg(:, :, :, idx_coil))
          e_sub_th_x_r(idx_coil) = product_with_scalar_grid(cross_vector_grid(e_sub_th, r_coil(idx_coil)), &

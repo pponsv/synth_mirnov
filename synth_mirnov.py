@@ -72,6 +72,7 @@ potentials = [
         profile_function=gaussian_profile,
         amp=15,
         phase=np.pi / 2,
+        # phase=0,
         s0=0.3,
         sigma=0.03,
     ),
@@ -94,7 +95,7 @@ sm.init_booz(
     ph_b=booz.ph,
     b_mod_b=booz.vars["mod_b"],
     sqrt_g_b=booz.vars["sqrtg_vecs"],
-    phi_b_g=booz.woutdata["phip_b"][-1],
+    phi_b_g=booz.woutdata["phi_b"][-1],
     iota_b=booz.iota,
     x=booz.xyzs["xs"],
     y=booz.xyzs["ys"],
@@ -115,10 +116,25 @@ sm.init_pot(
 sm.init_coils(coil_positions)
 t_init = toc("Initialization")
 
+print("Test magnetic field")
+sm.test_magnetic_field(121, 51, 41)
+# exit()
+
 tic()
 db = sm.run(coil_positions.shape[1], len(time))
 t_loop = toc("Main Loop")
 print(f"Time elapsed\t{t_loop+t_init}\tTotal")
+
+fig_all, axes_all = plt.subplots(
+    5, 5, constrained_layout=True, sharex=True, sharey=True
+)
+for coil_idx, ax in enumerate(axes_all.flatten()):
+    ax.plot(time, db[coil_idx, 0, :])
+    ax.plot(time, db[coil_idx, 1, :])
+    ax.plot(time, db[coil_idx, 2, :])
+    ax.set(title=f"coil_{coil_idx}")
+
+plt.figure()
 plt.plot(time, db[0, 0, :])
 plt.plot(time, db[0, 1, :])
 plt.plot(time, db[0, 2, :])
