@@ -8,7 +8,8 @@ from tictoc import tic, toc
 LOAD_BOOZ = True
 SAVE_BOOZ = False
 
-sm.test_meshgrid()
+
+# sm.test_meshgrid()
 # exit()
 
 
@@ -71,7 +72,7 @@ potentials = [
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
-        phase=np.pi / 2,
+        phase=np.angle(0),
         # phase=0,
         s0=0.3,
         sigma=0.03,
@@ -116,8 +117,8 @@ sm.init_pot(
 sm.init_coils(coil_positions)
 t_init = toc("Initialization")
 
-print("Test magnetic field")
-sm.test_magnetic_field(121, 51, 41)
+# print("Test magnetic field")
+# sm.test_magnetic_field(121, 51, 41)
 # exit()
 
 tic()
@@ -133,6 +134,12 @@ for coil_idx, ax in enumerate(axes_all.flatten()):
     ax.plot(time, db[coil_idx, 1, :])
     ax.plot(time, db[coil_idx, 2, :])
     ax.set(title=f"coil_{coil_idx}")
+
+plt.figure()
+for pot in potentials:
+    plt.plot(np.abs(pot.prof), ls="-")
+    plt.plot(np.real(pot.prof), ls="-.")
+    plt.plot(np.imag(pot.prof), ls="--")
 
 plt.figure()
 plt.plot(time, db[0, 0, :])

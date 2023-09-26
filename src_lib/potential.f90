@@ -30,8 +30,8 @@ contains
       exp_mth_pot = exp(complex(0, 1) * outer(real(ms_pot, 8), th))
       exp_nph_pot = exp(complex(0, 1) * outer(real(ns_pot, 8), ph))
 
-      allocate(dpot_dph(len_s, len_th, len_ph), &
-         dpot_dth(len_s, len_th, len_ph))
+      allocate(dpot_dph(len_s, len_th, len_ph))
+      allocate(dpot_dth(len_s, len_th, len_ph))
 
    end subroutine initialize_potential
 

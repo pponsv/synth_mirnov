@@ -63,16 +63,29 @@ contains
 
    end function fftfreqs
 
+   ! subroutine meshgrid_old(a, b, aa, bb)
+   !    real(8), intent(in) :: a(:), b(:)
+   !    real(8), intent(out) :: aa(size(a), size(b)), bb(size(a), size(b))
+   !    integer :: i, j
+
+   !    do i=1, size(b)
+   !       aa(:, i) = a(:)
+   !    end do
+   !    do i=1, size(a)
+   !       bb(i, :) = b(:)
+   !    end do
+   ! end subroutine meshgrid_old
+
    subroutine meshgrid(a, b, aa, bb)
       real(8), intent(in) :: a(:), b(:)
-      real(8), intent(out) :: aa(size(a), size(b)), bb(size(a), size(b))
+      real(8), intent(out) :: aa(size(b), size(a)), bb(size(b), size(a))
       integer :: i, j
 
       do i=1, size(b)
-         aa(:, i) = a
+         aa(i, :) = a
       end do
       do i=1, size(a)
-         bb(i, :) = b
+         bb(:, i) = b
       end do
    end subroutine meshgrid
 

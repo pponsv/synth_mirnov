@@ -28,7 +28,7 @@ contains
       th_freqs = 2*PI*fftfreqs(len_th, delta_th)
       ph_freqs = 2*PI*fftfreqs(len_ph, delta_ph)
       allocate(ftheta(len_th, len_ph), fphi(len_th, len_ph))
-      call meshgrid(th_freqs, ph_freqs, ftheta, fphi)
+      call meshgrid(ph_freqs, th_freqs, fphi, ftheta)
 
       call plan_ffts()
 
@@ -133,19 +133,21 @@ contains
       out = potnm
    end function get_potnm
 
-   subroutine test_meshgrid
+   subroutine test_meshgrid(a, b, la, lb, aa, bb)
       use fft_mod, only: meshgrid
-      real(8) :: a(2), b(3)
-      real(8) :: aa(2,3), bb(2,3)
+      use global, only: ftheta, fphi
+      integer, intent(in) :: la, lb
+      real(8), intent(in) :: a(la), b(lb)
+      real(8), intent(out)  :: aa(lb, la), bb(lb, la)
 
-      a = (/ 1., 2./)
-      b = (/ 3., 2., 1./)
       call meshgrid(a, b, aa, bb)
+      aa = ftheta
+      bb = fphi
 
-      print *, 'AA'
-      print *, aa
-      print *, 'BB'
-      print *, bb(1,:)
+      ! print *, 'AA'
+      ! print *, aa
+      ! print *, 'BB'
+      ! print *, bb(1,:)
    end subroutine test_meshgrid
 
    subroutine test_gradient(ns, nth, nph, grid, grad)
