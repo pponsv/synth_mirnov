@@ -8,7 +8,8 @@ contains
 
 
    function gradient(in) result(out)
-      use global, only : s, len_s, len_ph, len_th, delta_s, ftheta, fphi
+      use global, only : s, len_s, len_ph, len_th, delta_s, &
+         delta_th, delta_ph, ftheta, fphi
       real(8), intent(in) :: in(len_s, len_th, len_ph)
       type(vector_grid) :: out
       integer :: i, j, k
@@ -22,6 +23,20 @@ contains
          end do
       end do
       !$OMP END PARALLEL DO
+      ! !$OMP PARALLEL DO PRIVATE(k, i)
+      ! do k=1, len_ph
+      !    do i=1, len_s
+      !       out%u2(i, :, k) = finite_differences(in(i, :, k), delta_th)
+      !    end do
+      ! end do
+      ! !$OMP END PARALLEL DO
+      ! !$OMP PARALLEL DO PRIVATE(i, j)
+      ! do j=1, len_th
+      !    do i=1, len_s
+      !       out%u3(i, j, :) = finite_differences(in(i, j, :), delta_ph)
+      !    end do
+      ! end do
+      ! !$OMP END PARALLEL DO
 
       !$OMP PARALLEL DO PRIVATE(i)
       do i=1, len_s
