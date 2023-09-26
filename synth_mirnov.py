@@ -5,9 +5,10 @@ import libreria_calibracion as lc
 from synth_mirnov import synthetic_mirnov as sm  # type: ignore
 from tictoc import tic, toc
 
-LOAD_BOOZ = True
+# LOAD_BOOZ = True
 SAVE_BOOZ = False
-
+LOAD_BOOZ = False
+# SAVE_BOOZ = True
 
 # sm.test_meshgrid()
 # exit()
@@ -35,7 +36,6 @@ polarr = lc.Mirnov_P_Array(None)
 coil_positions = [coil.xyz.flatten() for coil in polarr]
 coil_positions = np.array(coil_positions)[:].T
 # coil_positions = coil_positions[:, 0]
-print(coil_positions)
 
 if LOAD_BOOZ is False:
     booz = vl.Booz(
@@ -67,13 +67,12 @@ time = np.linspace(0, 0.02, 21)
 potentials = [
     potential(
         booz.s,
-        m=8,
-        n=5,
+        m=5,
+        n=8,
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
         phase=np.angle(0),
-        # phase=0,
         s0=0.3,
         sigma=0.03,
     ),
@@ -108,10 +107,10 @@ sm.init_basis(
     e_sub_ph_b=booz.vecs["e_ph"],
 )
 sm.init_pot(
-    [pot.prof for pot in potentials],
-    [pot.m for pot in potentials],
-    [pot.n for pot in potentials],
-    [pot.freq for pot in potentials],
+    profiles=[pot.prof for pot in potentials],
+    ms=[pot.m for pot in potentials],
+    ns=[pot.n for pot in potentials],
+    fs=[pot.freq for pot in potentials],
     time=time,
 )
 sm.init_coils(coil_positions)
@@ -129,11 +128,13 @@ print(f"Time elapsed\t{t_loop+t_init}\tTotal")
 fig_all, axes_all = plt.subplots(
     5, 5, constrained_layout=True, sharex=True, sharey=True
 )
-for coil_idx, ax in enumerate(axes_all.flatten()):
-    ax.plot(time, db[coil_idx, 0, :])
-    ax.plot(time, db[coil_idx, 1, :])
-    ax.plot(time, db[coil_idx, 2, :])
-    ax.set(title=f"coil_{coil_idx}")
+axes_all = axes_all.flatten()
+# for coil_idx, ax in enumerate(axes_all.flatten()):
+for coil_idx in range(len(coil_positions.T)):
+    axes_all[coil_idx].plot(time, db[coil_idx, 0, :])
+    axes_all[coil_idx].plot(time, db[coil_idx, 1, :])
+    axes_all[coil_idx].plot(time, db[coil_idx, 2, :])
+    axes_all[coil_idx].set(title=f"coil_{coil_idx}")
 
 plt.figure()
 for pot in potentials:

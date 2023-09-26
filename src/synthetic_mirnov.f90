@@ -69,14 +69,14 @@ contains
 
    end subroutine init_basis
 
-   subroutine init_pot(pot_profiles, ms, ns, fs, time, num_modes, len_time, len_s)
+   subroutine init_pot(profiles, ms, ns, fs, time, num_modes, len_time, len_s)
       use potential, only : initialize_potential
       integer(8), intent(in) :: num_modes, len_time, len_s
       integer(8), intent(in) :: ms(num_modes), ns(num_modes)
       real(8), intent(in) :: fs(num_modes), time(len_time)
-      complex(8), intent(in) :: pot_profiles(num_modes, len_s)
+      complex(8), intent(in) :: profiles(num_modes, len_s)
 
-      call initialize_potential(pot_profiles, ms, ns, fs, time)
+      call initialize_potential(profiles=profiles, ms=ms, ns=ns, fs=fs, time=time)
 
    end subroutine init_pot
 
