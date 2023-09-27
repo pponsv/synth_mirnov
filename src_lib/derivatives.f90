@@ -41,7 +41,7 @@ contains
       !$OMP PARALLEL DO PRIVATE(i)
       do i=1, len_s
          out%u2(i, :, :) = ifft_2d(complex(0,1) * ftheta * fft_2d(in(i, :, :)))
-         out%u3(i, :, :) = ifft_2d(complex(0,1) * fphi * fft_2d(in(i, :, :)))
+         out%u3(i, :, :) = ifft_2d(complex(0,1) *  fphi  * fft_2d(in(i, :, :)))
       end do
       !$OMP END PARALLEL DO
    end function gradient
