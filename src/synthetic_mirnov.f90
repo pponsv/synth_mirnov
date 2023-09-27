@@ -1,5 +1,15 @@
+module kinds_f2py
+
+   implicit none
+
+   !  Kinds
+   integer, parameter :: r8 = selected_real_kind(15, 200)
+   integer, parameter :: i8 = selected_int_kind(16)
+
+end module kinds_f2py
+
 module synthetic_mirnov
-   use constants
+   use kinds_f2py
    implicit none
 
 contains
@@ -8,9 +18,9 @@ contains
       len_s_b, len_th_b, len_ph_b)
       use global
       use fft_mod, only: fftfreqs, meshgrid, plan_ffts
-      integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
-      real(8), intent(in) :: s_b(len_s_b), th_b(len_th_b), ph_b(len_ph_b), phi_b_g, iota_b(len_s_b)
-      real(8), intent(in), dimension(len_s_b, len_th_b, len_ph_b) :: b_mod_b, sqrt_g_b, x, y, z
+      integer(i8), intent(in) :: len_s_b, len_ph_b, len_th_b
+      real(r8), intent(in) :: s_b(len_s_b), th_b(len_th_b), ph_b(len_ph_b), phi_b_g, iota_b(len_s_b)
+      real(r8), intent(in), dimension(len_s_b, len_th_b, len_ph_b) :: b_mod_b, sqrt_g_b, x, y, z
       integer :: i
 
       len_s = len_s_b
@@ -39,10 +49,8 @@ contains
       inv_sqrt_g = 1. / sqrt_g_b
 
       call b_super%alloc(len_s, len_th, len_ph)
-      ! allocate(B_super%u1, B_super%u2, B_super%u3, mold=b_mod_b)
       B_super%u1 = 0
-      B_super%u3 = -1/(2*pi*sqrt_g)*phi_b_g ! 2*pi sobra??
-      ! B_super%u3 = -1/(sqrt_g)*phi_b_g
+      B_super%u3 = -1/(2*pi*sqrt_g)*phi_b_g
       do i=1, len_s
          B_super%u2(i, :, :) = B_super%u3(i, :, :) * iota(i)
       end do
@@ -51,14 +59,14 @@ contains
       xyz_grid%u2 = y
       xyz_grid%u3 = z
 
-      call gradpar_pot_super%alloc(len_s, len_ph, len_th)
+      call gradpar_pot_super%alloc(len_s, len_th, len_ph)
 
    end subroutine init_booz
 
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
       use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
-      integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
-      real(8), intent(in), dimension(3, len_s_b, len_th_b, len_ph_b) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
+      integer(i8), intent(in) :: len_s_b, len_ph_b, len_th_b
+      real(r8), intent(in), dimension(3, len_s_b, len_th_b, len_ph_b) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
       integer :: i, j, k
 
       call e_sub_s%init_grid(e_sub_s_b)
@@ -70,21 +78,21 @@ contains
    end subroutine init_basis
 
    subroutine init_pot(profiles, ms, ns, fs, time, num_modes, len_time, len_s)
-      use potential, only : initialize_potential
-      integer(8), intent(in) :: num_modes, len_time, len_s
-      integer(8), intent(in) :: ms(num_modes), ns(num_modes)
-      real(8), intent(in) :: fs(num_modes), time(len_time)
+      use potential, only : init_pot_main => init_pot
+      integer(i8), intent(in) :: num_modes, len_time, len_s
+      integer(i8), intent(in) :: ms(num_modes), ns(num_modes)
+      real(r8), intent(in) :: fs(num_modes), time(len_time)
       complex(8), intent(in) :: profiles(num_modes, len_s)
 
-      call initialize_potential(profiles=profiles, ms=ms, ns=ns, fs=fs, time=time)
+      call init_pot_main(profiles=profiles, ms=ms, ns=ns, fs=fs, time=time)
 
    end subroutine init_pot
 
    subroutine init_coils(xyzs, ncoils)
       use main, only: init_coils_main
       use global, only : coil_positions, num_coils
-      integer(8), intent(in) :: ncoils
-      real(8), intent(in) :: xyzs(3, ncoils)
+      integer(i8), intent(in) :: ncoils
+      real(r8), intent(in) :: xyzs(3, ncoils)
 
       coil_positions = xyzs
       num_coils = ncoils
@@ -94,8 +102,8 @@ contains
 
    subroutine run(num_coils_tmp, len_t_tmp, db_coils)
       use main
-      integer(8), intent(in) :: num_coils_tmp, len_t_tmp
-      real(8), intent(out) :: db_coils(num_coils_tmp, 3, len_t_tmp)
+      integer(i8), intent(in) :: num_coils_tmp, len_t_tmp
+      real(r8), intent(out) :: db_coils(num_coils_tmp, 3, len_t_tmp)
 
       call main_loop(db_coils)
 
@@ -103,7 +111,7 @@ contains
 
    function test_fft_main(in) result(out)
       use fft_mod
-      real(8) :: in(:,:), nin(size(in,1), size(in, 2))
+      complex(r8) :: in(:,:), nin(size(in,1), size(in, 2))
       complex(8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
 
       call plan_ffts()
@@ -128,7 +136,7 @@ contains
    function get_potnm(ls, nm) result(out)
       use global, only: potnm
       integer :: ls, nm
-      real(8) :: out(nm, ls)
+      real(r8) :: out(nm, ls)
 
       out = potnm
    end function get_potnm
@@ -137,8 +145,8 @@ contains
       use fft_mod, only: meshgrid
       use global, only: ftheta, fphi
       integer, intent(in) :: la, lb
-      real(8), intent(in) :: a(la), b(lb)
-      real(8), intent(out)  :: aa(lb, la), bb(lb, la)
+      real(r8), intent(in) :: a(la), b(lb)
+      real(r8), intent(out)  :: aa(lb, la), bb(lb, la)
 
       call meshgrid(a, b, aa, bb)
       aa = ftheta
@@ -155,9 +163,9 @@ contains
       use types
       use global, only : len_s, len_ph, len_th
       integer, intent(in) :: ns, nth, nph
-      real(8), intent(in) :: grid(ns, nth, nph)
+      complex(r8), intent(in) :: grid(ns, nth, nph)
       type(vector_grid) :: tgrad
-      real(8), intent(out) :: grad(3, ns, nth, nph)
+      real(r8), intent(out) :: grad(3, ns, nth, nph)
 
       len_s =  ns
       len_ph = nph
@@ -173,3 +181,4 @@ contains
 
 
 end module synthetic_mirnov
+

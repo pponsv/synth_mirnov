@@ -6,17 +6,17 @@ module potential
 contains
 
    ! function gaussian_profile(s, s0, sigma, amp) result(out)
-   !    real(8), intent(in) :: s(:), s0, sigma, amp
-   !    real(8) :: out(size(s))
+   !    real(r8), intent(in) :: s(:), s0, sigma, amp
+   !    real(r8) :: out(size(s))
 
    !    out = amp * exp(-((s - s0)**2) / sigma)
    ! end function gaussian_profile
 
-   subroutine initialize_potential(profiles, ms, ns, fs, time)
+   subroutine init_pot(profiles, ms, ns, fs, time)
       use global
-      integer(8), intent(in) :: ms(:), ns(:)
-      real(8), intent(in) :: fs(:), time(:)
-      complex(8), intent(in) :: profiles(:,:)
+      integer(i8), intent(in) :: ms(:), ns(:)
+      real(r8), intent(in) :: fs(:), time(:)
+      complex(r8), intent(in) :: profiles(:,:)
       integer :: i
 
       num_modes = size(ms)
@@ -33,11 +33,11 @@ contains
       allocate(dpot_dph(len_s, len_th, len_ph))
       allocate(dpot_dth(len_s, len_th, len_ph))
 
-   end subroutine initialize_potential
+   end subroutine init_pot
 
    subroutine potential_gradients(time)
       use global
-      real(8), intent(in) :: time
+      real(r8), intent(in) :: time
       integer :: i, j, k
 
       !$OMP PARALLEL DO PRIVATE(i, j, k)
@@ -61,10 +61,10 @@ contains
    end subroutine potential_gradients
 
    function outer(a, b) result(c)
-      real(8) :: a(:), b(:)
-      real(8) :: c(size(a), size(b))
+      real(r8) :: a(:), b(:)
+      real(r8) :: c(size(a), size(b))
 
-      integer(8) :: i, j
+      integer(i8) :: i, j
       do i = 1, size(b)
          do j = 1, size(a)
             c(j, i) = a(j)*b(i)

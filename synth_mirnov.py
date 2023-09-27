@@ -5,9 +5,9 @@ import libreria_calibracion as lc
 from synth_mirnov import synthetic_mirnov as sm  # type: ignore
 from tictoc import tic, toc
 
-# LOAD_BOOZ = True
+LOAD_BOOZ = True
 SAVE_BOOZ = False
-LOAD_BOOZ = False
+# LOAD_BOOZ = False
 # SAVE_BOOZ = True
 
 # sm.test_meshgrid()

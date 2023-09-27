@@ -1,5 +1,6 @@
 module Derivatives
 
+   use constants
    use fft_mod
    ! use helper
    use types
@@ -10,64 +11,62 @@ contains
    function gradient(in) result(out)
       use global, only : s, len_s, len_ph, len_th, delta_s, &
          delta_th, delta_ph, ftheta, fphi
-      real(8), intent(in) :: in(len_s, len_th, len_ph)
+      complex(r8), intent(in) :: in(len_s, len_th, len_ph)
       type(vector_grid) :: out
       integer :: i, j, k
 
       call out%alloc(len_s, len_th, len_ph)
 
+      out%u1 = partial_s(in, delta_s)
+      out%u2 = partial_fft(in, ftheta)
+      out%u3 = partial_fft(in, fphi)
+
+   end function gradient
+
+   function partial_s(in, ds) result(out)
+      complex(8), intent(in) :: in(:,:,:)
+      real(8) :: ds
+      complex(8) :: out(size(in, 1), size(in, 2), size(in, 3))
+      integer :: j, k
+
       !$OMP PARALLEL DO PRIVATE(k, j)
-      do k=1, len_ph
-         do j=1, len_th
-            out%u1(:, j, k) = finite_differences(in(:, j, k), delta_s)
+      do k=1, size(in, 3)
+         do j=1, size(in, 2)
+            out(:, j, k) = finite_differences(in(:, j, k), ds)
          end do
       end do
       !$OMP END PARALLEL DO
-      ! !$OMP PARALLEL DO PRIVATE(k, i)
-      ! do k=1, len_ph
-      !    do i=1, len_s
-      !       out%u2(i, :, k) = finite_differences(in(i, :, k), delta_th)
-      !    end do
-      ! end do
-      ! !$OMP END PARALLEL DO
-      ! !$OMP PARALLEL DO PRIVATE(i, j)
-      ! do j=1, len_th
-      !    do i=1, len_s
-      !       out%u3(i, j, :) = finite_differences(in(i, j, :), delta_ph)
-      !    end do
-      ! end do
-      ! !$OMP END PARALLEL DO
+
+   end function partial_s
+
+   function partial_fft(in, ftheta) result(out)
+      complex(8), intent(in) :: in(:,:,:)
+      real(r8) :: ftheta(:,:)
+      complex(8) :: out(size(in, 1), size(in, 2), size(in, 3))
 
       !$OMP PARALLEL DO PRIVATE(i)
-      do i=1, len_s
-         out%u2(i, :, :) = ifft_2d(complex(0,1) * ftheta * fft_2d(in(i, :, :)))
-         out%u3(i, :, :) = ifft_2d(complex(0,1) *  fphi  * fft_2d(in(i, :, :)))
+      do i=1, size(in, 1)
+         out(i, :, :) = ifft_2d(complex(0,1) * ftheta * fft_2d(in(i, :, :)))
       end do
       !$OMP END PARALLEL DO
-   end function gradient
+   end function partial_fft
 
    function curl(in, inv_sqrtg) result(out)
-      real(8), intent(in) :: inv_sqrtg(:,:,:)
+      use global, only : ftheta, fphi, delta_s
+      real(r8), intent(in) :: inv_sqrtg(:,:,:)
       type(vector_grid), intent(in):: in
       type(vector_grid) :: out, grad_1, grad_2, grad_3
 
-      ! call out%alloc(size(inv_sqrtg, 1, kind=8), size(inv_sqrtg, 2, kind=8), size(inv_sqrtg, 3, kind=8))
-
-      grad_1 = gradient(in%u1)
-      grad_2 = gradient(in%u2)
-      grad_3 = gradient(in%u3)
-
-      ! $OMP WORKSHARE
-      out%u1 = (grad_3%u2 - grad_2%u3) * inv_sqrtg
-      out%u2 = (grad_1%u3 - grad_3%u1) * inv_sqrtg
-      out%u3 = (grad_2%u1 - grad_1%u2) * inv_sqrtg
-      ! $OMP END WORKSHARE
+      out%u1 = (partial_fft(in%u3, ftheta) - partial_fft(in%u2,  fphi))  * inv_sqrtg
+      out%u2 = (partial_fft(in%u1,  fphi)  - partial_s(in%u3, delta_s))  * inv_sqrtg
+      out%u3 = (partial_s(in%u2, delta_s)  - partial_fft(in%u1, ftheta)) * inv_sqrtg
 
    end function curl
 
    pure function finite_differences(y, dx) result(dy)
-      real(8), intent(in) :: y(:), dx
-      real(8) :: dy(size(y))
+      complex(r8), intent(in) :: y(:)
+      real(r8), intent(in) :: dx
+      complex(r8) :: dy(size(y))
       integer :: i, len_y
 
       len_y = size(y)

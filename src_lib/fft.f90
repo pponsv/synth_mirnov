@@ -1,4 +1,5 @@
 module fft_mod
+   use constants
    use, intrinsic :: iso_c_binding
    implicit none
    include 'fftw3.f03'
@@ -8,8 +9,8 @@ contains
    subroutine plan_ffts()
       use global, only : fft_plan_2d, ifft_plan_2d, len_th, len_ph
 
-      ! real(8) :: in(len_th, len_ph)
-      complex(8) :: out(len_th, len_ph), in(len_th, len_ph)
+      ! real(r8) :: in(len_th, len_ph)
+      complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
       print *, 'PLANS', fft_plan_2d, ifft_plan_2d
 
@@ -24,18 +25,18 @@ contains
 
    function fft_2d(in) result(out)
       use global, only : len_th, len_ph, fft_plan_2d
-      real(8) :: in(len_th, len_ph)
-      complex(8) :: out(len_th, len_ph), tmp(len_th, len_ph)
+      ! real(r8) :: in(len_th, len_ph)
+      complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
-      tmp = in
-      call fftw_execute_dft(fft_plan_2d, tmp, out)
+      ! tmp = in
+      call fftw_execute_dft(fft_plan_2d, in, out)
 
    end function fft_2d
 
    function ifft_2d(in) result(out)
       use global, only : len_th, len_ph, ifft_plan_2d
-      complex(8) :: in(len_th, len_ph), out(len_th, len_ph)
-      ! real(8) :: out(len_th, len_ph)
+      complex(r8) :: in(len_th, len_ph), out(len_th, len_ph)
+      ! real(r8) :: out(len_th, len_ph)
 
       call fftw_execute_dft(ifft_plan_2d, in, out)
       out = out / (len_th * len_ph)
@@ -43,11 +44,11 @@ contains
    end function ifft_2d
 
    function fftfreqs(n, d) result(freqs)
-      integer(8), intent(in) :: n
-      real(8), intent(in) :: d
-      real(8) :: freqs(n), fac
-      integer(8) :: n_half
-      integer(8) :: i
+      integer(i8), intent(in) :: n
+      real(r8), intent(in) :: d
+      real(r8) :: freqs(n), fac
+      integer(i8) :: n_half
+      integer(i8) :: i
 
       fac = 1.0 / (n * d)
 
@@ -64,8 +65,8 @@ contains
    end function fftfreqs
 
    ! subroutine meshgrid_old(a, b, aa, bb)
-   !    real(8), intent(in) :: a(:), b(:)
-   !    real(8), intent(out) :: aa(size(a), size(b)), bb(size(a), size(b))
+   !    real(r8), intent(in) :: a(:), b(:)
+   !    real(r8), intent(out) :: aa(size(a), size(b)), bb(size(a), size(b))
    !    integer :: i, j
 
    !    do i=1, size(b)
@@ -77,8 +78,8 @@ contains
    ! end subroutine meshgrid_old
 
    subroutine meshgrid(a, b, aa, bb)
-      real(8), intent(in) :: a(:), b(:)
-      real(8), intent(out) :: aa(size(b), size(a)), bb(size(b), size(a))
+      real(r8), intent(in) :: a(:), b(:)
+      real(r8), intent(out) :: aa(size(b), size(a)), bb(size(b), size(a))
       integer :: i, j
 
       do i=1, size(b)

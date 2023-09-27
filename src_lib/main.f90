@@ -6,30 +6,28 @@ contains
       use potential, only : potential_gradients
       use derivatives, only: curl, gradient
       use types
-      real(8), intent(out) :: db_coils(num_coils, 3, len_t)
+      real(r8), intent(out) :: db_coils(num_coils, 3, len_t)
       integer :: idx_time
       integer :: idx_coil
       integer :: i, j, k
-      real(8) :: dbx, dby, dbz, int_factor
+      real(r8) :: dbx, dby, dbz, int_factor
+      type(vector_grid) :: tmp
 
       print *, "MAIN LOOP"
       print *, "num_coils=", num_coils, "len_t=", len_t
+      print *, "GRID SIZE=", len_s, len_th, len_ph
 
       int_factor = delta_s * delta_th * delta_ph
       db_coils = 0.
 
       do idx_time=1, size(t)
 
+         print *, 'TIMESTEP: ', idx_time, '  t=', t(idx_time)
+
          call potential_gradients(t(idx_time))
 
-         ! gradpar_pot_sub = lower_indices(gradpar_pot_super, g_sub_ij)
-         ! j_super = curl(lower_indices(curl(gradpar_pot_sub, inv_sqrt_g), g_sub_ij), inv_sqrt_g)
-         j_super = curl(lower_indices(&
-            curl(lower_indices(gradpar_pot_super, g_sub_ij), inv_sqrt_g), &
-            g_sub_ij), inv_sqrt_g)
-
-         !Pasar curl a cartesianas (multiplicando por e_sub_i)
-         print *, 'TIMESTEP: ', idx_time, '  t=', t(idx_time)
+         j_super = curl(lower_indices(gradpar_pot_super, g_sub_ij), inv_sqrt_g)
+         j_super = curl(lower_indices(j_super, g_sub_ij), inv_sqrt_g)
 
          ! $OMP PARALLEL DO PRIVATE(idx_coil, integrand)
          do idx_coil=1, num_coils
@@ -68,6 +66,10 @@ contains
          ! !$OMP END PARALLEL DO
       end do
    end subroutine main_loop
+
+   subroutine init_booz
+
+   end subroutine init_booz
 
    subroutine init_coils_main
       use global, only : coil_positions, num_coils, r_coil, xyz_grid, &

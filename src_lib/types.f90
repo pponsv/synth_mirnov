@@ -4,7 +4,7 @@ module types
    implicit none
 
    type vector_grid
-      real(8), allocatable, dimension(:,:,:) :: u1, u2, u3
+      complex(r8), allocatable, dimension(:,:,:) :: u1, u2, u3
    contains
       procedure :: init_grid => init_vector_grid
       procedure :: init_vec => init_vector_vectors
@@ -13,7 +13,7 @@ module types
 
 
    type metric_tensor
-      real(8), allocatable, dimension(:,:,:) :: g11, g12, g13, g21, g22, g23, g31, g32, g33
+      real(r8), allocatable, dimension(:,:,:) :: g11, g12, g13, g21, g22, g23, g31, g32, g33
    contains
       procedure :: init => init_metric_tensor
    end type metric_tensor
@@ -23,7 +23,7 @@ contains
 
    subroutine alloc_vector_grid(self, ls, lth, lph)
       class(vector_grid) :: self
-      integer(8) :: ls, lth, lph
+      integer(i8) :: ls, lth, lph
 
       allocate(self%u1(ls, lth, lph), &
          self%u2(ls, lth, lph), &
@@ -32,7 +32,7 @@ contains
    end subroutine alloc_vector_grid
 
    subroutine init_vector_grid(self, grid)
-      real(8), intent(in) :: grid(:,:,:,:)
+      real(r8), intent(in) :: grid(:,:,:,:)
       class(vector_grid) :: self
 
       self%u1 = grid(1,:,:,:)
@@ -42,7 +42,7 @@ contains
    end subroutine init_vector_grid
 
    subroutine init_vector_vectors(self, v1, v2, v3)
-      real(8), intent(in), dimension(:,:,:) :: v1, v2, v3
+      real(r8), intent(in), dimension(:,:,:) :: v1, v2, v3
       class(vector_grid) :: self
 
       self%u1 = v1
@@ -72,7 +72,7 @@ contains
 
    pure function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
       type(vector_grid), intent(in) :: vec_a
-      real(8), dimension(:,:,:), intent(in) :: sc_grid
+      real(r8), dimension(:,:,:), intent(in) :: sc_grid
       type(vector_grid):: vec_b
 
       vec_b%u1 = vec_a%u1 * sc_grid
@@ -82,7 +82,7 @@ contains
 
    function product_with_scalar(vec_a, scalar) result(vec_b)
       type(vector_grid), intent(in) :: vec_a
-      real(8), intent(in) :: scalar
+      real(r8), intent(in) :: scalar
       type(vector_grid):: vec_b
 
       vec_b%u1 = vec_a%u1 * scalar
@@ -92,7 +92,7 @@ contains
 
    function dot_vector_grid(vec_a, vec_b) result(grid_c)
       type(vector_grid), intent(in) :: vec_a, vec_b
-      real(8) :: grid_c(size(vec_a%u1, 1), size(vec_a%u1, 2), size(vec_a%u1, 3))
+      real(r8) :: grid_c(size(vec_a%u1, 1), size(vec_a%u1, 2), size(vec_a%u1, 3))
 
       grid_c = vec_a%u1 * vec_b%u1 + vec_a%u2 * vec_b%u2 + vec_a%u3 * vec_b%u3
 
