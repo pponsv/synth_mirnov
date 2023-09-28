@@ -8,4 +8,4 @@ lib/
 *.cpython*
 *.o
 *.a
-*.ipynb
+# *.ipynb

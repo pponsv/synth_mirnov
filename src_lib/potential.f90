@@ -25,52 +25,56 @@ contains
       ws_pot = 2.*PI*fs
       t = time
       len_t = size(time)
-      potnm = profiles
+      prof_nm = profiles
 
-      exp_mth_pot = exp(complex(0, 1) * outer(real(ms_pot, 8), th))
-      exp_nph_pot = exp(complex(0, 1) * outer(real(ns_pot, 8), ph))
-
-      allocate(dpot_dph(len_s, len_th, len_ph))
-      allocate(dpot_dth(len_s, len_th, len_ph))
+      allocate(dpot_dph(len_s, len_th, len_ph, num_modes))
+      allocate(dpot_dth(len_s, len_th, len_ph, num_modes))
+      allocate(gradpar_pot_super(num_modes), j_super(num_modes))
+      do i=1, num_modes
+         call gradpar_pot_super(i)%alloc(len_s, len_th, len_ph)
+      end do
 
    end subroutine init_pot
 
-   subroutine potential_gradients(time)
+   subroutine potential_gradients
       use global
-      real(r8), intent(in) :: time
-      integer :: i, j, k
+      integer :: i, j, k, l
 
-      !$OMP PARALLEL DO PRIVATE(i, j, k)
-      do k=1, len_ph
-         do j=1, len_th
-            do i=1, len_s
-               dpot_dth(i, j, k) = sum(potnm(:,i) * (complex(0,1) * ms_pot) * &
-                  exp_mth_pot(:,j) * exp_nph_pot(:,k) * exp(complex(0, -1) * ws_pot * time))
-               dpot_dph(i, j, k) = sum(potnm(:,i) * (complex(0,1) * ns_pot) * &
-                  exp_mth_pot(:,j) * exp_nph_pot(:,k) * exp(complex(0, -1) * ws_pot * time))
+      !$OMP PARALLEL DO PRIVATE(i, j, k, l)
+      do l=1, num_modes
+         do k=1, len_ph
+            do j=1, len_th
+               do i=1, len_s
+                  dpot_dth(i, j, k, l) = prof_nm(l,i) * (imag * ms_pot(l)) * exp(imag*(ms_pot(l) * th(j) + ns_pot(l) * ph(k)))
+                  dpot_dph(i, j, k, l) = prof_nm(l,i) * (imag * ns_pot(l)) * exp(imag*(ms_pot(l) * th(j) + ns_pot(l) * ph(k)))
+               end do
             end do
          end do
       end do
       !$OMP END PARALLEL DO
 
-      gradpar_pot_super%u1 = 0
-      gradpar_pot_super%u2 = inv_mod_b2 * (b_super%u2 * dpot_dth + b_super%u3 * dpot_dph)
-      gradpar_pot_super%u3 = gradpar_pot_super%u2 * b_super%u3
-      gradpar_pot_super%u2 = gradpar_pot_super%u2 * b_super%u2 !  Lo hago así para hacer menos operaciones
+      !$OMP PARALLEL DO PRIVATE(l)
+      do l=1, num_modes
+         gradpar_pot_super(l)%u1 = 0
+         gradpar_pot_super(l)%u2 = inv_mod_b2 * (b_super%u2 * dpot_dth(:,:,:,l) + b_super%u3 * dpot_dph(:,:,:,l))
+         gradpar_pot_super(l)%u3 = gradpar_pot_super(l)%u2 * b_super%u3
+         gradpar_pot_super(l)%u2 = gradpar_pot_super(l)%u2 * b_super%u2
+      end do
+      !$OMP END PARALLEL DO
 
    end subroutine potential_gradients
 
-   function outer(a, b) result(c)
-      real(r8) :: a(:), b(:)
-      real(r8) :: c(size(a), size(b))
+   subroutine potential_curls
+      use global
+      use derivatives
+      type(vector_grid) :: curl_pot
+      integer :: l
 
-      integer(i8) :: i, j
-      do i = 1, size(b)
-         do j = 1, size(a)
-            c(j, i) = a(j)*b(i)
-         end do
+      do l=1, num_modes
+         curl_pot = curl(lower_indices(gradpar_pot_super(l), g_sub_ij), inv_sqrt_g)
+         j_super(l) = curl(lower_indices(curl_pot, g_sub_ij), inv_sqrt_g)
       end do
-   end function outer
 
+   end subroutine potential_curls
 
 end module potential

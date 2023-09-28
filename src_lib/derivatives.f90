@@ -1,4 +1,4 @@
-module Derivatives
+module derivatives
 
    use constants
    use fft_mod
@@ -10,20 +10,20 @@ contains
 
    function gradient(in) result(out)
       use global, only : s, len_s, len_ph, len_th, delta_s, &
-         delta_th, delta_ph, ftheta, fphi
+         delta_th, delta_ph, fth, fph
       complex(r8), intent(in) :: in(len_s, len_th, len_ph)
       type(vector_grid) :: out
       integer :: i, j, k
 
       call out%alloc(len_s, len_th, len_ph)
 
-      out%u1 = partial_s(in, delta_s)
-      out%u2 = partial_fft(in, ftheta)
-      out%u3 = partial_fft(in, fphi)
+      out%u1 = partial_rad(in, delta_s)
+      out%u2 = partial_fft(in, fth)
+      out%u3 = partial_fft(in, fph)
 
    end function gradient
 
-   function partial_s(in, ds) result(out)
+   function partial_rad(in, ds) result(out)
       complex(8), intent(in) :: in(:,:,:)
       real(8) :: ds
       complex(8) :: out(size(in, 1), size(in, 2), size(in, 3))
@@ -37,29 +37,29 @@ contains
       end do
       !$OMP END PARALLEL DO
 
-   end function partial_s
+   end function partial_rad
 
-   function partial_fft(in, ftheta) result(out)
+   function partial_fft(in, coef_grid) result(out)
       complex(8), intent(in) :: in(:,:,:)
-      real(r8) :: ftheta(:,:)
+      real(r8) :: coef_grid(:,:)
       complex(8) :: out(size(in, 1), size(in, 2), size(in, 3))
 
       !$OMP PARALLEL DO PRIVATE(i)
       do i=1, size(in, 1)
-         out(i, :, :) = ifft_2d(complex(0,1) * ftheta * fft_2d(in(i, :, :)))
+         out(i, :, :) = ifft_2d(complex(0,1) * coef_grid * fft_2d(in(i, :, :)))
       end do
       !$OMP END PARALLEL DO
    end function partial_fft
 
    function curl(in, inv_sqrtg) result(out)
-      use global, only : ftheta, fphi, delta_s
+      use global, only : fth, fph, d_s => delta_s
       real(r8), intent(in) :: inv_sqrtg(:,:,:)
       type(vector_grid), intent(in):: in
       type(vector_grid) :: out, grad_1, grad_2, grad_3
 
-      out%u1 = (partial_fft(in%u3, ftheta) - partial_fft(in%u2,  fphi))  * inv_sqrtg
-      out%u2 = (partial_fft(in%u1,  fphi)  - partial_s(in%u3, delta_s))  * inv_sqrtg
-      out%u3 = (partial_s(in%u2, delta_s)  - partial_fft(in%u1, ftheta)) * inv_sqrtg
+      out%u1 = (partial_fft(in%u3, fth) - partial_fft(in%u2, fph)) * inv_sqrtg
+      out%u2 = (partial_fft(in%u1, fph) - partial_rad(in%u3, d_s)) * inv_sqrtg
+      out%u3 = (partial_rad(in%u2, d_s) - partial_fft(in%u1, fth)) * inv_sqrtg
 
    end function curl
 
@@ -80,4 +80,4 @@ contains
       dy(size(y)) = (1 * y(len_y-2) - 4 * y(len_y-1) + 3 * y(len_y)) / (2 * dx)
 
    end function finite_differences
-end module Derivatives
+end module derivatives

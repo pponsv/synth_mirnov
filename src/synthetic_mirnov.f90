@@ -37,8 +37,8 @@ contains
 
       th_freqs = 2*PI*fftfreqs(len_th, delta_th)
       ph_freqs = 2*PI*fftfreqs(len_ph, delta_ph)
-      allocate(ftheta(len_th, len_ph), fphi(len_th, len_ph))
-      call meshgrid(ph_freqs, th_freqs, fphi, ftheta)
+      allocate(fth(len_th, len_ph), fph(len_th, len_ph))
+      call meshgrid(ph_freqs, th_freqs, fph, fth)
 
       call plan_ffts()
 
@@ -58,8 +58,6 @@ contains
       xyz_grid%u1 = x
       xyz_grid%u2 = y
       xyz_grid%u3 = z
-
-      call gradpar_pot_super%alloc(len_s, len_th, len_ph)
 
    end subroutine init_booz
 
@@ -89,21 +87,20 @@ contains
    end subroutine init_pot
 
    subroutine init_coils(xyzs, ncoils)
-      use main, only: init_coils_main
-      use global, only : coil_positions, num_coils
+      use global, only : coil_xyz, num_coils
       integer(i8), intent(in) :: ncoils
       real(r8), intent(in) :: xyzs(3, ncoils)
 
-      coil_positions = xyzs
+      coil_xyz = xyzs
       num_coils = ncoils
-      call init_coils_main
+      ! call init_coils_main
 
    end subroutine init_coils
 
    subroutine run(num_coils_tmp, len_t_tmp, db_coils)
       use main
       integer(i8), intent(in) :: num_coils_tmp, len_t_tmp
-      real(r8), intent(out) :: db_coils(num_coils_tmp, 3, len_t_tmp)
+      real(r8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
 
       call main_loop(db_coils)
 
@@ -134,23 +131,23 @@ contains
    end subroutine test_magnetic_field
 
    function get_potnm(ls, nm) result(out)
-      use global, only: potnm
+      use global, only: prof_nm
       integer :: ls, nm
       real(r8) :: out(nm, ls)
 
-      out = potnm
+      out = prof_nm
    end function get_potnm
 
    subroutine test_meshgrid(a, b, la, lb, aa, bb)
       use fft_mod, only: meshgrid
-      use global, only: ftheta, fphi
+      use global, only: fth, fph
       integer, intent(in) :: la, lb
       real(r8), intent(in) :: a(la), b(lb)
       real(r8), intent(out)  :: aa(lb, la), bb(lb, la)
 
       call meshgrid(a, b, aa, bb)
-      aa = ftheta
-      bb = fphi
+      aa = fth
+      bb = fph
 
       ! print *, 'AA'
       ! print *, aa
@@ -159,7 +156,7 @@ contains
    end subroutine test_meshgrid
 
    subroutine test_gradient(ns, nth, nph, grid, grad)
-      use Derivatives
+      use derivatives
       use types
       use global, only : len_s, len_ph, len_th
       integer, intent(in) :: ns, nth, nph
@@ -171,6 +168,8 @@ contains
       len_ph = nph
       len_th = nth
 
+      print *, size(grid, 1),size(grid, 2),size(grid, 3)
+
       tgrad = gradient(grid)
 
       grad(1,:,:,:) = tgrad%u1
@@ -178,6 +177,35 @@ contains
       grad(3,:,:,:) = tgrad%u3
 
    end subroutine test_gradient
+
+   ! subroutine test_curl(ns, nth, nph, vgrid, vcurl)
+   !    use Derivatives
+   !    use types
+   !    use global, only : len_s, len_ph, len_th, inv_sqrt_g
+   !    integer, intent(in) :: ns, nth, nph
+   !    complex(r8), intent(in) :: vgrid(3, ns, nth, nph)
+   !    type(vector_grid) :: tvec, tcurl
+   !    real(r8), intent(out) :: vcurl(3, ns, nth, nph)
+
+   !    len_s =  ns
+   !    len_ph = nph
+   !    len_th = nth
+
+   !    tvec%u1 = vgrid(1, :,:,:)
+   !    tvec%u2 = vgrid(2, :,:,:)
+   !    tvec%u3 = vgrid(3, :,:,:)
+
+   !    tcurl = curl(tvec, inv_sqrt_g)
+
+   !    print *, size(vgrid, 1),size(vgrid, 2),size(vgrid, 3)
+
+   !    tgrad = gradient(vgrid)
+
+   !    vcurl(1,:,:,:) = tgrad%u1
+   !    vcurl(2,:,:,:) = tgrad%u2
+   !    vcurl(3,:,:,:) = tgrad%u3
+
+   ! end subroutine test_curl
 
 
 end module synthetic_mirnov

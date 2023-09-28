@@ -70,7 +70,7 @@ contains
       out%u3 = vec1%u3 + vec2%u3 + vec3%u3
    end function sum_three_vector_grids
 
-   pure function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
+   function product_with_scalar_grid(vec_a, sc_grid) result(vec_b)
       type(vector_grid), intent(in) :: vec_a
       real(r8), dimension(:,:,:), intent(in) :: sc_grid
       type(vector_grid):: vec_b

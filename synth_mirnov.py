@@ -41,8 +41,8 @@ if LOAD_BOOZ is False:
     booz = vl.Booz(
         # "./device/tjii/100_44_64/boozmn_100_44_64_0.0.nc",
         "/home/pedro/MEGA/00_doctorado/research/VMEC/TJ-II/100_44_64.0.0/boozmn_100_44_64_0.0.nc",
-        theta=np.linspace(0, 2 * np.pi, 64 + 1)[:-1],
-        phi=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
+        theta=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
+        phi=np.linspace(0, 2 * np.pi, 256 + 1)[:-1],
     )
     booz.get_vectors()
     if SAVE_BOOZ is True:
@@ -67,12 +67,12 @@ time = np.linspace(0, 0.02, 21)
 potentials = [
     potential(
         booz.s,
-        m=5,
-        n=8,
+        m=8,
+        n=5,
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
-        phase=np.angle(0),
+        phase=np.angle(1j),
         s0=0.3,
         sigma=0.03,
     ),
@@ -83,6 +83,7 @@ potentials = [
     #     freq=80,
     #     profile_function=gaussian_profile,
     #     amp=5 + 0.1j,
+    #     phase=np.angle(0),
     #     s0=0.4,
     #     sigma=0.03,
     # ),
@@ -131,9 +132,9 @@ fig_all, axes_all = plt.subplots(
 axes_all = axes_all.flatten()
 # for coil_idx, ax in enumerate(axes_all.flatten()):
 for coil_idx in range(len(coil_positions.T)):
-    axes_all[coil_idx].plot(time, db[coil_idx, 0, :])
-    axes_all[coil_idx].plot(time, db[coil_idx, 1, :])
-    axes_all[coil_idx].plot(time, db[coil_idx, 2, :])
+    axes_all[coil_idx].plot(time, db[0, coil_idx, :])
+    axes_all[coil_idx].plot(time, db[1, coil_idx, :])
+    axes_all[coil_idx].plot(time, db[2, coil_idx, :])
     axes_all[coil_idx].set(title=f"coil_{coil_idx}")
 
 plt.figure()
@@ -144,13 +145,13 @@ for pot in potentials:
 
 plt.figure()
 plt.plot(time, db[0, 0, :])
-plt.plot(time, db[0, 1, :])
-plt.plot(time, db[0, 2, :])
+plt.plot(time, db[1, 0, :])
+plt.plot(time, db[2, 0, :])
 
 plt.figure()
-plt.plot(db[:, 0, 0])
-plt.plot(db[:, 1, 0])
-plt.plot(db[:, 2, 0])
+plt.plot(db[0, :, 0])
+plt.plot(db[1, :, 0])
+plt.plot(db[2, :, 0])
 plt.show()
 # ths, phs = np.meshgrid(booz.th, booz.ph)
 # fft_test = np.sin(3 * ths - 2 * phs).T
