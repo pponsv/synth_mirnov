@@ -2,19 +2,21 @@ module main
 
    use constants
 
+   implicit none
+
 contains
 
    subroutine main_loop(db_coils)
       use global
-      use types
+      ! use types
       use potential, only : potential_gradients, potential_curls
 
       real(r8), intent(out) :: db_coils(3, num_coils, len_t)
       complex(r8) :: db(3, num_modes, num_coils)
       integer :: idx_time, idx_coil, idx_mode
-      integer :: i, j, k
       real(r8) :: int_factor
-      type(vector_grid) :: us, uth, uph
+      real(r8), dimension(len_s, len_th, len_ph, 3)  :: us, uth, uph
+      integer :: i, j, k
 
       print *, "MAIN LOOP"
       print *, "num_coils=", num_coils, "len_t=", len_t
@@ -24,9 +26,6 @@ contains
       int_factor = delta_s * delta_th * delta_ph
       db_coils = 0.
       db = 0.
-      tmp_b = 0.
-
-      ! print *, e_sub_s%u1
 
       call potential_gradients
 
@@ -56,11 +55,13 @@ contains
 
 
    function integrate_mode(idx_mode, int_factor, es, eth, eph) result(db)
-      use types
+      ! use types
       use global, only: len_s, len_th, len_ph, j_super
-      type(vector_grid), intent(in) :: es, eth, eph
+      integer, intent(in) :: idx_mode
+      real(r8), intent(in), dimension(len_s, len_th, len_ph, 3) :: es, eth, eph
       real(r8) :: int_factor
       complex(r8) :: dbx, dby, dbz, db(3)
+      integer :: i, j, k
       db = 0.
       dbx = 0.
       dby = 0.
@@ -70,15 +71,15 @@ contains
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
-               dbx = dbx + (es%u1(i, j, k) * j_super(idx_mode)%u1(i, j, k) + &
-                  eth%u1(i, j, k) * j_super(idx_mode)%u2(i, j, k) + &
-                  eph%u1(i, j, k) * j_super(idx_mode)%u3(i, j, k)) * int_factor
-               dby = dby + (es%u2(i, j, k) * j_super(idx_mode)%u1(i, j, k) + &
-                  eth%u2(i, j, k) * j_super(idx_mode)%u2(i, j, k) + &
-                  eph%u2(i, j, k) * j_super(idx_mode)%u3(i, j, k)) * int_factor
-               dbz = dbz + (es%u3(i, j, k) * j_super(idx_mode)%u1(i, j, k) + &
-                  eth%u3(i, j, k) * j_super(idx_mode)%u2(i, j, k) + &
-                  eph%u3(i, j, k) * j_super(idx_mode)%u3(i, j, k))* int_factor
+               dbx = dbx + (es(i, j, k, 1) * j_super(i, j, k, 1, idx_mode) + &
+                  eth(i, j, k, 1) * j_super(i, j, k, 2, idx_mode) + &
+                  eph(i, j, k, 1) * j_super(i, j, k, 3, idx_mode)) * int_factor
+               dby = dby + (es(i, j, k, 2) * j_super(i, j, k, 1, idx_mode) + &
+                  eth(i, j, k, 2) * j_super(i, j, k, 2, idx_mode) + &
+                  eph(i, j, k, 2) * j_super(i, j, k, 3, idx_mode)) * int_factor
+               dbz = dbz + (es(i, j, k, 3) * j_super(i, j, k, 1, idx_mode) + &
+                  eth(i, j, k, 3) * j_super(i, j, k, 2, idx_mode) + &
+                  eph(i, j, k, 3) * j_super(i, j, k, 3, idx_mode))* int_factor
             end do
          end do
       end do
@@ -90,24 +91,30 @@ contains
 
 
    subroutine init_coil(idx_coil, us, uth, uph)
-      use types
+      ! use types
+      use helper
       ! use global
       use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
          len_s, len_th, len_ph, sqrt_g
-      type(vector_grid), intent(out) :: us, uth, uph
-      type(vector_grid) :: r_coil
+      real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
+      real(r8), dimension(len_s, len_th, len_ph, 3) :: r_coil
       real(r8) :: r_3_sqrtg(len_s, len_th, len_ph)
       integer, intent(in) :: idx_coil
 
-      r_coil%u1 = coil_xyz(1,idx_coil) - xyz_grid%u1
-      r_coil%u2 = coil_xyz(2,idx_coil) - xyz_grid%u2
-      r_coil%u3 = coil_xyz(3,idx_coil) - xyz_grid%u3
+      r_coil(:,:,:,1) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)
+      r_coil(:,:,:,2) = coil_xyz(2,idx_coil) - xyz_grid(:,:,:,2)
+      r_coil(:,:,:,3) = coil_xyz(3,idx_coil) - xyz_grid(:,:,:,3)
 
-      r_3_sqrtg(:, :, :) = sqrt_g * sqrt(dot_vector_grid(r_coil, r_coil))**(-3)
+      r_3_sqrtg = sqrt_g * sqrt(dot_product_real(r_coil, r_coil))**(-3)
 
-      us = product_with_scalar_grid(cross_vector_grid(e_sub_s,   r_coil), r_3_sqrtg)
-      uth = product_with_scalar_grid(cross_vector_grid(e_sub_th, r_coil), r_3_sqrtg)
-      uph = product_with_scalar_grid(cross_vector_grid(e_sub_ph, r_coil), r_3_sqrtg)
+      us = scalar_product_real(cross_product_real(e_sub_s,  r_coil), r_3_sqrtg)
+      uth = scalar_product_real(cross_product_real(e_sub_th, r_coil), r_3_sqrtg)
+      uph = scalar_product_real(cross_product_real(e_sub_ph, r_coil), r_3_sqrtg)
+
+      ! us  = scalar_product_real(cross_product_real(e_sub_s,  r_coil), r_3_sqrtg)
+      ! print *, size(r_3_sqrtg, 1), size(r_3_sqrtg, 2), size(r_3_sqrtg, 3)
+      ! uth = scalar_product_real(cross_product_real(e_sub_th, r_coil), r_3_sqrtg)
+      ! uph = scalar_product_real(cross_product_real(e_sub_ph, r_coil), r_3_sqrtg)
 
    end subroutine init_coil
 

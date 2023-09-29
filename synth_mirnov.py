@@ -41,8 +41,8 @@ if LOAD_BOOZ is False:
     booz = vl.Booz(
         # "./device/tjii/100_44_64/boozmn_100_44_64_0.0.nc",
         "/home/pedro/MEGA/00_doctorado/research/VMEC/TJ-II/100_44_64.0.0/boozmn_100_44_64_0.0.nc",
-        theta=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
-        phi=np.linspace(0, 2 * np.pi, 256 + 1)[:-1],
+        theta=np.linspace(0, 2 * np.pi, 64 + 1)[:-1],
+        phi=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
     )
     booz.get_vectors()
     if SAVE_BOOZ is True:
@@ -63,16 +63,16 @@ else:
         phi=np.linspace(0, 2 * np.pi, 4 + 1)[:-1],
     )
 
-time = np.linspace(0, 0.02, 21)
+time = np.linspace(0, 0.03, 40)
 potentials = [
     potential(
         booz.s,
-        m=8,
-        n=5,
+        m=5,
+        n=8,
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
-        phase=np.angle(1j),
+        phase=np.angle(0),
         s0=0.3,
         sigma=0.03,
     ),
@@ -103,9 +103,9 @@ sm.init_booz(
     z=booz.xyzs["zs"],
 )
 sm.init_basis(
-    e_sub_s_b=booz.vecs["e_s"],
-    e_sub_th_b=booz.vecs["e_th"],
-    e_sub_ph_b=booz.vecs["e_ph"],
+    e_sub_s_b=np.moveaxis(booz.vecs["e_s"], 0, -1),
+    e_sub_th_b=np.moveaxis(booz.vecs["e_th"], 0, -1),
+    e_sub_ph_b=np.moveaxis(booz.vecs["e_ph"], 0, -1),
 )
 sm.init_pot(
     profiles=[pot.prof for pot in potentials],
@@ -152,6 +152,15 @@ plt.figure()
 plt.plot(db[0, :, 0])
 plt.plot(db[1, :, 0])
 plt.plot(db[2, :, 0])
+
+
+plt.figure()
+sig_p = np.zeros((len(polarr.coils), len(time)))
+for idx, coil in enumerate(polarr):
+    sig_p[idx] = np.dot(coil.normal, db[:, idx])
+    plt.plot(time, lc.normalize(sig_p[idx]) + 0.5 * idx, color="k", lw=1)
+
+
 plt.show()
 # ths, phs = np.meshgrid(booz.th, booz.ph)
 # fft_test = np.sin(3 * ths - 2 * phs).T

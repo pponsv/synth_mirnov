@@ -40,7 +40,7 @@ contains
       allocate(fth(len_th, len_ph), fph(len_th, len_ph))
       call meshgrid(ph_freqs, th_freqs, fph, fth)
 
-      call plan_ffts()
+      call plan_ffts
 
       iota = iota_b
       mod_b = b_mod_b
@@ -48,30 +48,36 @@ contains
       sqrt_g = sqrt_g_b
       inv_sqrt_g = 1. / sqrt_g_b
 
-      call b_super%alloc(len_s, len_th, len_ph)
-      B_super%u1 = 0
-      B_super%u3 = -1/(2*pi*sqrt_g)*phi_b_g
+      allocate(b_super(len_s, len_th, len_ph, 3))
+      allocate(xyz_grid(len_s, len_th, len_ph, 3))
+      b_super(:,:,:,1) = 0
+      b_super(:,:,:,3) = -1/(2*pi*sqrt_g)*phi_b_g
       do i=1, len_s
-         B_super%u2(i, :, :) = B_super%u3(i, :, :) * iota(i)
+         b_super(i, :, :, 2) = b_super(i, :, :, 3) * iota(i)
       end do
 
-      xyz_grid%u1 = x
-      xyz_grid%u2 = y
-      xyz_grid%u3 = z
+      xyz_grid(:,:,:,1) = x
+      xyz_grid(:,:,:,2) = y
+      xyz_grid(:,:,:,3) = z
 
    end subroutine init_booz
 
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
       use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
+      use helper, only : metric_tensor
       integer(i8), intent(in) :: len_s_b, len_ph_b, len_th_b
-      real(r8), intent(in), dimension(3, len_s_b, len_th_b, len_ph_b) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
+      real(r8), intent(in), dimension(len_s_b, len_th_b, len_ph_b, 3) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
       integer :: i, j, k
 
-      call e_sub_s%init_grid(e_sub_s_b)
-      call e_sub_th%init_grid(e_sub_th_b)
-      call e_sub_ph%init_grid(e_sub_ph_b)
+      e_sub_s = e_sub_s_b
+      e_sub_th = e_sub_th_b
+      e_sub_ph = e_sub_ph_b
 
-      call g_sub_ij%init(e_sub_s, e_sub_th, e_sub_ph)
+      print *, 'e_s', size(e_sub_s, 1), size(e_sub_s, 2), size(e_sub_s, 3), size(e_sub_s, 4)
+      print *, 'e_th', size(e_sub_th, 1), size(e_sub_th, 2), size(e_sub_th, 3), size(e_sub_th, 4)
+      print *, 'e_ph', size(e_sub_ph, 1), size(e_sub_ph, 2), size(e_sub_ph, 3), size(e_sub_ph, 4)
+
+      g_sub_ij = metric_tensor(e_sub_s, e_sub_th, e_sub_ph)
 
    end subroutine init_basis
 
@@ -125,9 +131,9 @@ contains
    subroutine test_magnetic_field(i, j, k)
       use global
       integer, intent(in) :: i, j, k
-      print *,  b_super%u2(i, j, k) *e_sub_th%u1(i, j, k) + b_super%u3(i, j, k) * e_sub_ph%u1(i, j, k)
-      print *,  b_super%u2(i, j, k) *e_sub_th%u2(i, j, k) + b_super%u3(i, j, k) * e_sub_ph%u2(i, j, k)
-      print *,  b_super%u2(i, j, k) *e_sub_th%u3(i, j, k) + b_super%u3(i, j, k) * e_sub_ph%u3(i, j, k)
+      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 1) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 1)
+      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 2) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 2)
+      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 3) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 3)
    end subroutine test_magnetic_field
 
    function get_potnm(ls, nm) result(out)
@@ -140,73 +146,37 @@ contains
 
    subroutine test_meshgrid(a, b, la, lb, aa, bb)
       use fft_mod, only: meshgrid
-      use global, only: fth, fph
+      ! use global, only: fth, fph
       integer, intent(in) :: la, lb
       real(r8), intent(in) :: a(la), b(lb)
       real(r8), intent(out)  :: aa(lb, la), bb(lb, la)
 
       call meshgrid(a, b, aa, bb)
-      aa = fth
-      bb = fph
+      ! aa = fth
+      ! bb = fph
 
-      ! print *, 'AA'
-      ! print *, aa
-      ! print *, 'BB'
-      ! print *, bb(1,:)
    end subroutine test_meshgrid
 
    subroutine test_gradient(ns, nth, nph, grid, grad)
       use derivatives
-      use types
+      ! use fft_mod
       use global, only : len_s, len_ph, len_th
       integer, intent(in) :: ns, nth, nph
       complex(r8), intent(in) :: grid(ns, nth, nph)
-      type(vector_grid) :: tgrad
-      real(r8), intent(out) :: grad(3, ns, nth, nph)
+      real(r8), intent(out) :: grad(ns, nth, nph, 3)
 
-      len_s =  ns
-      len_ph = nph
-      len_th = nth
+      ! print *, ns, nth, nph
+      ! len_s =  ns
+      ! len_th = nth
+      ! len_ph = nph
+
+      ! call plan_ffts
 
       print *, size(grid, 1),size(grid, 2),size(grid, 3)
 
-      tgrad = gradient(grid)
-
-      grad(1,:,:,:) = tgrad%u1
-      grad(2,:,:,:) = tgrad%u2
-      grad(3,:,:,:) = tgrad%u3
+      grad = gradient(grid)
 
    end subroutine test_gradient
-
-   ! subroutine test_curl(ns, nth, nph, vgrid, vcurl)
-   !    use Derivatives
-   !    use types
-   !    use global, only : len_s, len_ph, len_th, inv_sqrt_g
-   !    integer, intent(in) :: ns, nth, nph
-   !    complex(r8), intent(in) :: vgrid(3, ns, nth, nph)
-   !    type(vector_grid) :: tvec, tcurl
-   !    real(r8), intent(out) :: vcurl(3, ns, nth, nph)
-
-   !    len_s =  ns
-   !    len_ph = nph
-   !    len_th = nth
-
-   !    tvec%u1 = vgrid(1, :,:,:)
-   !    tvec%u2 = vgrid(2, :,:,:)
-   !    tvec%u3 = vgrid(3, :,:,:)
-
-   !    tcurl = curl(tvec, inv_sqrt_g)
-
-   !    print *, size(vgrid, 1),size(vgrid, 2),size(vgrid, 3)
-
-   !    tgrad = gradient(vgrid)
-
-   !    vcurl(1,:,:,:) = tgrad%u1
-   !    vcurl(2,:,:,:) = tgrad%u2
-   !    vcurl(3,:,:,:) = tgrad%u3
-
-   ! end subroutine test_curl
-
 
 end module synthetic_mirnov
 

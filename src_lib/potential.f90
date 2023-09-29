@@ -29,10 +29,8 @@ contains
 
       allocate(dpot_dph(len_s, len_th, len_ph, num_modes))
       allocate(dpot_dth(len_s, len_th, len_ph, num_modes))
-      allocate(gradpar_pot_super(num_modes), j_super(num_modes))
-      do i=1, num_modes
-         call gradpar_pot_super(i)%alloc(len_s, len_th, len_ph)
-      end do
+      allocate(gradpar_pot_super(len_s, len_th, len_ph, 3, num_modes))
+      allocate(j_super(len_s, len_th, len_ph, 3, num_modes))
 
    end subroutine init_pot
 
@@ -53,12 +51,13 @@ contains
       end do
       !$OMP END PARALLEL DO
 
-      !$OMP PARALLEL DO PRIVATE(l)
-      do l=1, num_modes
-         gradpar_pot_super(l)%u1 = 0
-         gradpar_pot_super(l)%u2 = inv_mod_b2 * (b_super%u2 * dpot_dth(:,:,:,l) + b_super%u3 * dpot_dph(:,:,:,l))
-         gradpar_pot_super(l)%u3 = gradpar_pot_super(l)%u2 * b_super%u3
-         gradpar_pot_super(l)%u2 = gradpar_pot_super(l)%u2 * b_super%u2
+      !$OMP PARALLEL DO PRIVATE(k)
+      do k=1, num_modes
+         gradpar_pot_super(:,:,:,1,k) = 0
+         gradpar_pot_super(:,:,:,2,k) = inv_mod_b2 * (b_super(:,:,:,2) * dpot_dth(:,:,:,k) + &
+            b_super(:,:,:,2) * dpot_dph(:,:,:,k))
+         gradpar_pot_super(:,:,:,2,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,2)
+         gradpar_pot_super(:,:,:,2,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,2)
       end do
       !$OMP END PARALLEL DO
 
@@ -66,13 +65,15 @@ contains
 
    subroutine potential_curls
       use global
+      use helper
       use derivatives
-      type(vector_grid) :: curl_pot
+      ! type(vector_grid) :: curl_pot
+      complex(r8), allocatable :: curl_pot(:,:,:,:), tmp(:,:,:,:)
       integer :: l
 
       do l=1, num_modes
-         curl_pot = curl(lower_indices(gradpar_pot_super(l), g_sub_ij), inv_sqrt_g)
-         j_super(l) = curl(lower_indices(curl_pot, g_sub_ij), inv_sqrt_g)
+         curl_pot = curl(lower_indices(gradpar_pot_super(:,:,:,:,l), g_sub_ij), inv_sqrt_g)
+         j_super(:,:,:,:,l) = curl(lower_indices(curl_pot, g_sub_ij), inv_sqrt_g)
       end do
 
    end subroutine potential_curls

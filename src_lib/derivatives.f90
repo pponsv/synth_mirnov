@@ -1,9 +1,11 @@
 module derivatives
 
+
    use constants
    use fft_mod
    ! use helper
-   use types
+   ! use types
+   implicit none
 
 contains
 
@@ -12,14 +14,13 @@ contains
       use global, only : s, len_s, len_ph, len_th, delta_s, &
          delta_th, delta_ph, fth, fph
       complex(r8), intent(in) :: in(len_s, len_th, len_ph)
-      type(vector_grid) :: out
+      complex(r8):: out(len_s, len_th, len_ph, 3)
+      ! type(vector_grid) :: out
       integer :: i, j, k
 
-      call out%alloc(len_s, len_th, len_ph)
-
-      out%u1 = partial_rad(in, delta_s)
-      out%u2 = partial_fft(in, fth)
-      out%u3 = partial_fft(in, fph)
+      out(:,:,:,1) = partial_rad(in, delta_s)
+      out(:,:,:,2) = partial_fft(in, fth)
+      out(:,:,:,3) = partial_fft(in, fph)
 
    end function gradient
 
@@ -39,27 +40,36 @@ contains
 
    end function partial_rad
 
-   function partial_fft(in, coef_grid) result(out)
-      complex(8), intent(in) :: in(:,:,:)
+   function partial_fft(arr_in, coef_grid) result(out)
+      ! use global, only: len_th, len_ph
+      complex(8), intent(in) :: arr_in(:,:,:)
       real(r8) :: coef_grid(:,:)
-      complex(8) :: out(size(in, 1), size(in, 2), size(in, 3))
+      complex(8) :: out(size(arr_in, 1), size(arr_in, 2), size(arr_in, 3))
+      complex(8) :: tmp(size(arr_in, 2), size(arr_in, 3))
+      integer :: i
 
-      !$OMP PARALLEL DO PRIVATE(i)
-      do i=1, size(in, 1)
-         out(i, :, :) = ifft_2d(complex(0,1) * coef_grid * fft_2d(in(i, :, :)))
+      do i=1, size(arr_in, 1)
+         tmp = fft_2d(arr_in(i, :, :))
+         print *, tmp(2,2)
+         out(i, :, :) = ifft_2d(imag * coef_grid * fft_2d(arr_in(i, :, :)))
       end do
-      !$OMP END PARALLEL DO
+      ! $OMP END PARALLEL DO
+      ! print *, arr_in(120, 1, 1)
+      ! print *, out(120, 1, 1)
    end function partial_fft
 
-   function curl(in, inv_sqrtg) result(out)
+   function curl(vec_in, inv_sqrtg) result(out)
       use global, only : fth, fph, d_s => delta_s
+      complex(r8), intent(in) :: vec_in(:,:,:,:)
       real(r8), intent(in) :: inv_sqrtg(:,:,:)
-      type(vector_grid), intent(in):: in
-      type(vector_grid) :: out, grad_1, grad_2, grad_3
+      complex(r8) :: out(size(vec_in, 1), size(vec_in, 2), size(vec_in, 3), 3)
 
-      out%u1 = (partial_fft(in%u3, fth) - partial_fft(in%u2, fph)) * inv_sqrtg
-      out%u2 = (partial_fft(in%u1, fph) - partial_rad(in%u3, d_s)) * inv_sqrtg
-      out%u3 = (partial_rad(in%u2, d_s) - partial_fft(in%u1, fth)) * inv_sqrtg
+      out(:,:,:,1) = (partial_fft(vec_in(:,:,:,3), fth) - &
+         partial_fft(vec_in(:,:,:,2), fph)) * inv_sqrtg
+      out(:,:,:,2) = (partial_fft(vec_in(:,:,:,1), fph) - &
+         partial_rad(vec_in(:,:,:,3), d_s)) * inv_sqrtg
+      out(:,:,:,3) = (partial_rad(vec_in(:,:,:,2), d_s) - &
+         partial_fft(vec_in(:,:,:,1), fth)) * inv_sqrtg
 
    end function curl
 

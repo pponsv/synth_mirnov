@@ -6,10 +6,8 @@ module fft_mod
 
 contains
 
-   subroutine plan_ffts()
+   subroutine plan_ffts
       use global, only : fft_plan_2d, ifft_plan_2d, len_th, len_ph
-
-      ! real(r8) :: in(len_th, len_ph)
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
       print *, 'PLANS', fft_plan_2d, ifft_plan_2d
@@ -25,18 +23,17 @@ contains
 
    function fft_2d(in) result(out)
       use global, only : len_th, len_ph, fft_plan_2d
-      ! real(r8) :: in(len_th, len_ph)
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
-      ! tmp = in
+      print *, size(in, 1), size(in, 2)
       call fftw_execute_dft(fft_plan_2d, in, out)
-
+      print *, out(1,1)
+      ! stop
    end function fft_2d
 
    function ifft_2d(in) result(out)
       use global, only : len_th, len_ph, ifft_plan_2d
       complex(r8) :: in(len_th, len_ph), out(len_th, len_ph)
-      ! real(r8) :: out(len_th, len_ph)
 
       call fftw_execute_dft(ifft_plan_2d, in, out)
       out = out / (len_th * len_ph)
@@ -47,8 +44,7 @@ contains
       integer(i8), intent(in) :: n
       real(r8), intent(in) :: d
       real(r8) :: freqs(n), fac
-      integer(i8) :: n_half
-      integer(i8) :: i
+      integer(i8) :: i, n_half
 
       fac = 1.0 / (n * d)
 
@@ -63,19 +59,6 @@ contains
       freqs = freqs * fac
 
    end function fftfreqs
-
-   ! subroutine meshgrid_old(a, b, aa, bb)
-   !    real(r8), intent(in) :: a(:), b(:)
-   !    real(r8), intent(out) :: aa(size(a), size(b)), bb(size(a), size(b))
-   !    integer :: i, j
-
-   !    do i=1, size(b)
-   !       aa(:, i) = a(:)
-   !    end do
-   !    do i=1, size(a)
-   !       bb(i, :) = b(:)
-   !    end do
-   ! end subroutine meshgrid_old
 
    subroutine meshgrid(a, b, aa, bb)
       real(r8), intent(in) :: a(:), b(:)
