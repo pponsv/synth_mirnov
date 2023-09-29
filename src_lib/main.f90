@@ -43,8 +43,8 @@ contains
 
          do idx_time=1, len_t
             do idx_mode=1, num_modes
-               db_coils(:, idx_coil, idx_time) = db_coils(:, idx_coil, idx_time) - &
-                  db(:, idx_mode, idx_coil)*exp( -imag * ws_pot(idx_mode) * t(idx_time)) / (4*pi)
+               db_coils(:, idx_coil, idx_time) = db_coils(:, idx_coil, idx_time) + &
+                  db(:, idx_mode, idx_coil)*exp( -imag * ws_pot(idx_mode) * t(idx_time))
             end do
          end do
 
@@ -85,7 +85,7 @@ contains
       end do
       !$OMP END PARALLEL DO
 
-      db = (/ dbx, dby, dbz /)
+      db = - (/ dbx, dby, dbz /) / (4*pi)
 
    end function integrate_mode
 
@@ -107,14 +107,9 @@ contains
 
       r_3_sqrtg = sqrt_g * sqrt(dot_product_real(r_coil, r_coil))**(-3)
 
-      us = scalar_product_real(cross_product_real(e_sub_s,  r_coil), r_3_sqrtg)
+      us  = scalar_product_real(cross_product_real(e_sub_s,  r_coil), r_3_sqrtg)
       uth = scalar_product_real(cross_product_real(e_sub_th, r_coil), r_3_sqrtg)
       uph = scalar_product_real(cross_product_real(e_sub_ph, r_coil), r_3_sqrtg)
-
-      ! us  = scalar_product_real(cross_product_real(e_sub_s,  r_coil), r_3_sqrtg)
-      ! print *, size(r_3_sqrtg, 1), size(r_3_sqrtg, 2), size(r_3_sqrtg, 3)
-      ! uth = scalar_product_real(cross_product_real(e_sub_th, r_coil), r_3_sqrtg)
-      ! uph = scalar_product_real(cross_product_real(e_sub_ph, r_coil), r_3_sqrtg)
 
    end subroutine init_coil
 

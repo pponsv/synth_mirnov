@@ -64,7 +64,7 @@ contains
 
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
       use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
-      use helper, only : metric_tensor
+      use helper, only : metric_tensor, checknans
       integer(i8), intent(in) :: len_s_b, len_ph_b, len_th_b
       real(r8), intent(in), dimension(len_s_b, len_th_b, len_ph_b, 3) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
       integer :: i, j, k
@@ -119,12 +119,9 @@ contains
 
       call plan_ffts()
 
-      ! print *, in
       out = fft_2d(in)
       cout = out
       nin = ifft_2d(cout)
-
-      ! print *, in - nin
 
    end function test_fft_main
 
@@ -146,37 +143,35 @@ contains
 
    subroutine test_meshgrid(a, b, la, lb, aa, bb)
       use fft_mod, only: meshgrid
-      ! use global, only: fth, fph
       integer, intent(in) :: la, lb
       real(r8), intent(in) :: a(la), b(lb)
       real(r8), intent(out)  :: aa(lb, la), bb(lb, la)
 
       call meshgrid(a, b, aa, bb)
-      ! aa = fth
-      ! bb = fph
 
    end subroutine test_meshgrid
 
    subroutine test_gradient(ns, nth, nph, grid, grad)
       use derivatives
-      ! use fft_mod
       use global, only : len_s, len_ph, len_th
       integer, intent(in) :: ns, nth, nph
       complex(r8), intent(in) :: grid(ns, nth, nph)
       real(r8), intent(out) :: grad(ns, nth, nph, 3)
 
-      ! print *, ns, nth, nph
-      ! len_s =  ns
-      ! len_th = nth
-      ! len_ph = nph
-
-      ! call plan_ffts
-
-      print *, size(grid, 1),size(grid, 2),size(grid, 3)
-
       grad = gradient(grid)
 
    end subroutine test_gradient
 
+
+   subroutine test_cross(a, b, l1, l2, l3, out)
+      use helper
+      integer :: l1, l2, l3
+      real(8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
+      real(8), intent(out) :: out(l1, l2, l3, 3)
+
+      out = cross_product_real(a, b)
+
+
+   end subroutine test_cross
 end module synthetic_mirnov
 

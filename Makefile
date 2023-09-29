@@ -1,6 +1,6 @@
 LIBNAME = synth_mirnov_lib
 # OPT_FLAG = -fcheck=all -Og -fbacktrace 
-OPT_FLAG = -O2
+OPT_FLAG = -O3
 SRC_LIB = ./src_lib
 OBJ_DIR = ./bld
 F90_LIB = $(wildcard $(SRC_LIB)/*.f90)
@@ -35,9 +35,9 @@ $(OBJ_DIR)/types.o : $(OBJ_DIR)/constants.o
 $(OBJ_DIR)/global.o : $(OBJ_DIR)/types.o $(OBJ_DIR)/constants.o
 $(OBJ_DIR)/helper.o : $(OBJ_DIR)/constants.o
 $(OBJ_DIR)/potential.o : $(OBJ_DIR)/constants.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/global.o
-$(OBJ_DIR)/fft.o : $(OBJ_DIR)/global.o
-	gfortran $(OFILE_FLAGS) -c -o $@ $(SRC_LIB)/fft.f90 
-$(OBJ_DIR)/derivatives.o : $(OBJ_DIR)/fft.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/types.o 
+$(OBJ_DIR)/fft_mod.o : $(OBJ_DIR)/global.o
+	gfortran $(OFILE_FLAGS) -c -o $@ $(SRC_LIB)/fft_mod.f90 
+$(OBJ_DIR)/derivatives.o : $(OBJ_DIR)/fft_mod.o $(OBJ_DIR)/helper.o $(OBJ_DIR)/types.o 
 $(OBJ_DIR)/main.o : $(OBJ_DIR)/global.o $(OBJ_DIR)/potential.o $(OBJ_DIR)/derivatives.o $(OBJ_DIR)/types.o 
 
 clean:

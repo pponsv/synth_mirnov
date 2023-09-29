@@ -72,8 +72,7 @@ contains
       do k=1, size(a, 3)
          do j=1, size(a, 2)
             do i=1, size(a, 1)
-               out(i, j, k) = sqrt(a(i, j, k, 1) * b(i, j, k, 1) + a(i, j, k, 2) * b(i, j, k, 2) + &
-                  a(i, j, k, 3) * b(i, j, k, 3))
+               out(i, j, k) = sum(a(i, j, k, :) * b(i, j, k, :))
             end do
          end do
       end do
@@ -103,9 +102,9 @@ contains
       real(r8), intent(in) :: vec(:,:,:,:)
       real(r8), intent(in) :: sca(:,:,:)
       real(r8) :: out(size(vec, 1), size(vec, 2), size(vec, 3), 3)
-      integer :: i, j, k, l
+      integer :: i, j, k
 
-      !$OMP PARALLEL DO PRIVATE(i, j, k, l)
+      !$OMP PARALLEL DO PRIVATE(i, j, k)
       do k=1, size(vec, 3)
          do j=1, size(vec, 2)
             do i=1, size(vec, 1)
@@ -123,9 +122,6 @@ contains
       complex(r8) :: out(size(vec, 1), size(vec, 2), size(vec, 3), 3)
       integer :: i, j, k
 
-      print *, size(vec, 1), size(vec, 2), size(vec, 3), size(vec, 4)
-      print *, size(gij, 1), size(gij, 2), size(gij, 3), size(gij, 4), size(gij, 5)
-      print *, size(out, 1), size(out, 2), size(out, 3), size(out, 4)
       !$OMP PARALLEL DO PRIVATE(i, j, k)
       do k=1, size(vec, 3)
          do j=1, size(vec, 2)
@@ -149,18 +145,6 @@ contains
       real(r8), intent(in) :: es(:,:,:,:), eth(:,:,:,:), eph(:,:,:,:)
       real(r8) :: out(size(es, 1), size(es, 2), size(es, 3), 3, 3)
 
-      ! out(:,:,:,1,1) = dot_product_real(es, es)
-      ! out(:,:,:,1,2) = dot_product_real(es, eth)
-      ! out(:,:,:,1,3) = dot_product_real(es, eph)
-
-      ! out(:,:,:,2,1) = dot_product_real(es, eth)
-      ! out(:,:,:,2,2) = dot_product_real(eth, eth)
-      ! out(:,:,:,2,3) = dot_product_real(eth, eph)
-
-      ! out(:,:,:,3,1) = dot_product_real(es, eph)
-      ! out(:,:,:,3,2) = dot_product_real(eth, eph)
-      ! out(:,:,:,3,3) = dot_product_real(eph, eph)
-
       out(:,:,:,1,1) = dot_product_real(es, es)
       out(:,:,:,1,2) = dot_product_real(es, eth)
       out(:,:,:,1,3) = dot_product_real(es, eph)
@@ -172,6 +156,20 @@ contains
       out(:,:,:,3,1) = out(:,:,:,1,3)
       out(:,:,:,3,2) = out(:,:,:,2,3)
       out(:,:,:,3,3) = dot_product_real(eph, eph)
+
    end function metric_tensor
+
+   subroutine checknans(in, len_in)
+      real(r8) :: in(*)
+      integer :: i, len_in
+
+      do i=1, len_in
+         if (in(i) /= in(i)) then
+            print *, 'NaN', in(i), i
+            stop
+         end if
+      end do
+      print *, 'No NaNS'
+   end subroutine checknans
 
 end module helper

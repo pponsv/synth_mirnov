@@ -25,10 +25,8 @@ contains
       use global, only : len_th, len_ph, fft_plan_2d
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
-      print *, size(in, 1), size(in, 2)
       call fftw_execute_dft(fft_plan_2d, in, out)
-      print *, out(1,1)
-      ! stop
+
    end function fft_2d
 
    function ifft_2d(in) result(out)

@@ -73,8 +73,8 @@ potentials = [
         profile_function=gaussian_profile,
         amp=15,
         phase=np.angle(0),
-        s0=0.3,
-        sigma=0.03,
+        s0=0.4,
+        sigma=0.05,
     ),
     # potential(
     #     booz.s,

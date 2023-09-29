@@ -1,10 +1,8 @@
 module derivatives
 
-
    use constants
    use fft_mod
-   ! use helper
-   ! use types
+
    implicit none
 
 contains
@@ -15,7 +13,6 @@ contains
          delta_th, delta_ph, fth, fph
       complex(r8), intent(in) :: in(len_s, len_th, len_ph)
       complex(r8):: out(len_s, len_th, len_ph, 3)
-      ! type(vector_grid) :: out
       integer :: i, j, k
 
       out(:,:,:,1) = partial_rad(in, delta_s)
@@ -41,21 +38,17 @@ contains
    end function partial_rad
 
    function partial_fft(arr_in, coef_grid) result(out)
-      ! use global, only: len_th, len_ph
       complex(8), intent(in) :: arr_in(:,:,:)
       real(r8) :: coef_grid(:,:)
       complex(8) :: out(size(arr_in, 1), size(arr_in, 2), size(arr_in, 3))
-      complex(8) :: tmp(size(arr_in, 2), size(arr_in, 3))
       integer :: i
 
+      !$OMP PARALLEL DO PRIVATE(i)
       do i=1, size(arr_in, 1)
-         tmp = fft_2d(arr_in(i, :, :))
-         print *, tmp(2,2)
          out(i, :, :) = ifft_2d(imag * coef_grid * fft_2d(arr_in(i, :, :)))
       end do
-      ! $OMP END PARALLEL DO
-      ! print *, arr_in(120, 1, 1)
-      ! print *, out(120, 1, 1)
+      !$OMP END PARALLEL DO
+
    end function partial_fft
 
    function curl(vec_in, inv_sqrtg) result(out)
