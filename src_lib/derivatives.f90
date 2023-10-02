@@ -1,12 +1,10 @@
 module derivatives
 
    use constants
-   use fft_mod
 
    implicit none
 
 contains
-
 
    function gradient(in) result(out)
       use global, only : s, len_s, len_ph, len_th, delta_s, &
@@ -21,10 +19,11 @@ contains
 
    end function gradient
 
+
    function partial_rad(in, ds) result(out)
-      complex(8), intent(in) :: in(:,:,:)
-      real(8) :: ds
-      complex(8) :: out(size(in, 1), size(in, 2), size(in, 3))
+      complex(r8), intent(in) :: in(:,:,:)
+      real(r8) :: ds
+      complex(r8) :: out(size(in, 1), size(in, 2), size(in, 3))
       integer :: j, k
 
       !$OMP PARALLEL DO PRIVATE(k, j)
@@ -37,10 +36,12 @@ contains
 
    end function partial_rad
 
+
    function partial_fft(arr_in, coef_grid) result(out)
-      complex(8), intent(in) :: arr_in(:,:,:)
+      use fft_mod, only : fft_2d, ifft_2d
+      complex(r8), intent(in) :: arr_in(:,:,:)
       real(r8) :: coef_grid(:,:)
-      complex(8) :: out(size(arr_in, 1), size(arr_in, 2), size(arr_in, 3))
+      complex(r8) :: out(size(arr_in, 1), size(arr_in, 2), size(arr_in, 3))
       integer :: i
 
       !$OMP PARALLEL DO PRIVATE(i)
@@ -50,6 +51,7 @@ contains
       !$OMP END PARALLEL DO
 
    end function partial_fft
+
 
    function curl(vec_in, inv_sqrtg) result(out)
       use global, only : fth, fph, d_s => delta_s
@@ -65,6 +67,7 @@ contains
          partial_fft(vec_in(:,:,:,1), fth)) * inv_sqrtg
 
    end function curl
+
 
    pure function finite_differences(y, dx) result(dy)
       complex(r8), intent(in) :: y(:)
@@ -83,4 +86,5 @@ contains
       dy(size(y)) = (1 * y(len_y-2) - 4 * y(len_y-1) + 3 * y(len_y)) / (2 * dx)
 
    end function finite_differences
+
 end module derivatives

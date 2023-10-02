@@ -50,8 +50,9 @@ contains
 
       allocate(b_super(len_s, len_th, len_ph, 3))
       allocate(xyz_grid(len_s, len_th, len_ph, 3))
+
       b_super(:,:,:,1) = 0
-      b_super(:,:,:,3) = -1/(2*pi*sqrt_g)*phi_b_g
+      b_super(:,:,:,3) = -phi_b_g/(2*pi*sqrt_g)
       do i=1, len_s
          b_super(i, :, :, 2) = b_super(i, :, :, 3) * iota(i)
       end do
@@ -61,6 +62,7 @@ contains
       xyz_grid(:,:,:,3) = z
 
    end subroutine init_booz
+
 
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
       use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
@@ -81,27 +83,29 @@ contains
 
    end subroutine init_basis
 
+
    subroutine init_pot(profiles, ms, ns, fs, time, num_modes, len_time, len_s)
       use potential, only : init_pot_main => init_pot
       integer(i8), intent(in) :: num_modes, len_time, len_s
       integer(i8), intent(in) :: ms(num_modes), ns(num_modes)
       real(r8), intent(in) :: fs(num_modes), time(len_time)
-      complex(8), intent(in) :: profiles(num_modes, len_s)
+      complex(r8), intent(in) :: profiles(num_modes, len_s)
 
       call init_pot_main(profiles=profiles, ms=ms, ns=ns, fs=fs, time=time)
 
    end subroutine init_pot
 
+
    subroutine init_coils(xyzs, ncoils)
       use global, only : coil_xyz, num_coils
       integer(i8), intent(in) :: ncoils
-      real(r8), intent(in) :: xyzs(3, ncoils)
+      real(r8), intent(in) :: xyzs(ncoils, 3)
 
-      coil_xyz = xyzs
+      coil_xyz = transpose(xyzs)
       num_coils = ncoils
-      ! call init_coils_main
 
    end subroutine init_coils
+
 
    subroutine run(num_coils_tmp, len_t_tmp, db_coils)
       use main
@@ -112,10 +116,11 @@ contains
 
    end subroutine run
 
+
    function test_fft_main(in) result(out)
       use fft_mod
       complex(r8) :: in(:,:), nin(size(in,1), size(in, 2))
-      complex(8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
+      complex(r8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
 
       call plan_ffts()
 
@@ -125,13 +130,17 @@ contains
 
    end function test_fft_main
 
+
    subroutine test_magnetic_field(i, j, k)
       use global
       integer, intent(in) :: i, j, k
+
       print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 1) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 1)
       print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 2) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 2)
       print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 3) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 3)
+
    end subroutine test_magnetic_field
+
 
    function get_potnm(ls, nm) result(out)
       use global, only: prof_nm
@@ -139,7 +148,9 @@ contains
       real(r8) :: out(nm, ls)
 
       out = prof_nm
+
    end function get_potnm
+
 
    subroutine test_meshgrid(a, b, la, lb, aa, bb)
       use fft_mod, only: meshgrid
@@ -150,6 +161,7 @@ contains
       call meshgrid(a, b, aa, bb)
 
    end subroutine test_meshgrid
+
 
    subroutine test_gradient(ns, nth, nph, grid, grad)
       use derivatives
@@ -166,12 +178,21 @@ contains
    subroutine test_cross(a, b, l1, l2, l3, out)
       use helper
       integer :: l1, l2, l3
-      real(8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
-      real(8), intent(out) :: out(l1, l2, l3, 3)
+      real(r8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
+      real(r8), intent(out) :: out(l1, l2, l3, 3)
 
       out = cross_product_real(a, b)
 
-
    end subroutine test_cross
+
+   subroutine get_j_super(newj, len_s, len_th, len_ph, num_modes)
+      use global, only : j_super
+      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(r8), intent(out) :: newj(len_s, len_th, len_ph, 3, num_modes)
+
+      newj = j_super
+
+   end subroutine get_j_super
+
 end module synthetic_mirnov
 

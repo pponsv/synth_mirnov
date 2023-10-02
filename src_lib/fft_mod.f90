@@ -4,10 +4,13 @@ module fft_mod
    implicit none
    include 'fftw3.f03'
 
+   !  FFT plans
+   type(C_PTR) :: fft_plan_2d, ifft_plan_2d
+
 contains
 
    subroutine plan_ffts
-      use global, only : fft_plan_2d, ifft_plan_2d, len_th, len_ph
+      use global, only : len_th, len_ph
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
       ! print *, 'PLANS', fft_plan_2d, ifft_plan_2d
@@ -22,7 +25,7 @@ contains
    end subroutine plan_ffts
 
    function fft_2d(in) result(out)
-      use global, only : len_th, len_ph, fft_plan_2d
+      use global, only : len_th, len_ph
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
       call fftw_execute_dft(fft_plan_2d, in, out)
@@ -30,7 +33,7 @@ contains
    end function fft_2d
 
    function ifft_2d(in) result(out)
-      use global, only : len_th, len_ph, ifft_plan_2d
+      use global, only : len_th, len_ph
       complex(r8) :: in(len_th, len_ph), out(len_th, len_ph)
 
       call fftw_execute_dft(ifft_plan_2d, in, out)

@@ -10,8 +10,8 @@ SAVE_BOOZ = False
 # LOAD_BOOZ = False
 # SAVE_BOOZ = True
 
-LEN_THETA = 64
-LEN_PHI = 128
+LEN_THETA = 150
+LEN_PHI = 400
 
 # sm.test_meshgrid()
 # exit()
@@ -21,8 +21,16 @@ def gaussian_profile(s, s0, amp, sigma, phase=0):
     return amp * np.exp(1j * phase) * np.exp(-((s - s0) ** 2) / sigma)
 
 
+def ramp_soft(x, y, x0, x1, k):
+    return 0.5 * y * ((1 + np.tanh(k * (x - x0)) * np.tanh(k * (x1 - x))))
+
+
+def gaussian_forced_zero(s, s0, amp, sigma, phase=0):
+    return ramp_soft(s, gaussian_profile(s, s0, amp, sigma, phase), 0.05, 0.95, 50)
+
+
 class potential:
-    def __init__(self, s, m, n, freq, profile_function=gaussian_profile, **kwargs):
+    def __init__(self, s, m, n, freq, profile_function=gaussian_forced_zero, **kwargs):
         self.s = s
         self.m = m
         self.n = n
@@ -37,7 +45,14 @@ polarr = lc.Mirnov_P_Array(None)
 #     coil.xyz.flatten() for coil in polarr
 # ]
 coil_positions = [coil.xyz.flatten() for coil in polarr]
-coil_positions = np.array(coil_positions)[:].T
+coil_positions = np.array(coil_positions)[:]
+print(coil_positions.shape)
+
+# coil_positions = np.interp(
+#     coil_positions, np.linspace(0, 1, coil_positions.shape[1]), np.linspace(0, 1)
+# )
+# print(coil_positions.shape)
+# exit()
 # coil_positions = coil_positions[:, 0]
 
 if LOAD_BOOZ is False:
@@ -68,28 +83,28 @@ else:
 
 time = np.linspace(0, 0.03, 40)
 potentials = [
-    # potential(
-    #     booz.s,
-    #     m=5,
-    #     n=8,
-    #     freq=150,
-    #     profile_function=gaussian_profile,
-    #     amp=15,
-    #     phase=np.angle(0),
-    #     s0=0.3,
-    #     sigma=0.05,
-    # ),
     potential(
         booz.s,
-        m=4,
-        n=7,
+        m=5,
+        n=8,
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
         phase=np.angle(0),
-        s0=0.4,
-        sigma=0.03,
+        s0=0.3,
+        sigma=0.05,
     ),
+    # potential(
+    #     booz.s,
+    #     m=4,
+    #     n=7,
+    #     freq=150,
+    #     profile_function=gaussian_profile,
+    #     amp=15,
+    #     phase=np.angle(0),
+    #     s0=0.4,
+    #     sigma=0.03,
+    # ),
 ]
 
 tic()
@@ -123,9 +138,16 @@ t_init = toc("Initialization")
 # print("Test magnetic field")
 # sm.test_magnetic_field(121, 51, 41)
 # exit()
+sm.init_pot(
+    profiles=[pot.prof for pot in potentials],
+    ms=[pot.m for pot in potentials],
+    ns=[pot.n for pot in potentials],
+    fs=[pot.freq for pot in potentials],
+    time=time,
+)
 
 tic()
-db = sm.run(coil_positions.shape[1], len(time))
+db = sm.run(coil_positions.shape[0], len(time))
 t_loop = toc("Main Loop")
 print(f"Time elapsed\t{t_loop+t_init}\tTotal")
 
@@ -134,7 +156,7 @@ fig_all, axes_all = plt.subplots(
 )
 axes_all = axes_all.flatten()
 # for coil_idx, ax in enumerate(axes_all.flatten()):
-for coil_idx in range(len(coil_positions.T)):
+for coil_idx in range(len(coil_positions)):
     axes_all[coil_idx].plot(time, db[0, coil_idx, :])
     axes_all[coil_idx].plot(time, db[1, coil_idx, :])
     axes_all[coil_idx].plot(time, db[2, coil_idx, :])

@@ -18,7 +18,7 @@ contains
       integer :: i, j, k
 
       write (*, '(/, A, /)') "MAIN LOOP"
-      write (*, '(2(A12, I5, 3X, /))') "NUM COILS = ", num_coils, "len_t =     ", len_t
+      write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
       write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
       write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
 
@@ -48,13 +48,11 @@ contains
          end do
 
       end do
-      ! print *, tmp_b(:,:,1)
 
    end subroutine main_loop
 
 
    function integrate_mode(idx_mode, int_factor, es, eth, eph) result(db)
-      ! use types
       use global, only: len_s, len_th, len_ph, j_super
       integer, intent(in) :: idx_mode
       real(r8), intent(in), dimension(len_s, len_th, len_ph, 3) :: es, eth, eph
@@ -90,7 +88,7 @@ contains
 
 
    subroutine init_coil(idx_coil, us, uth, uph)
-      use helper
+      use helper, only : scalar_product_real, cross_product_real, dot_product_real
       use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
          len_s, len_th, len_ph, sqrt_g
       real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph

@@ -5,12 +5,15 @@ module potential
 
 contains
 
-   ! function gaussian_profile(s, s0, sigma, amp) result(out)
-   !    real(r8), intent(in) :: s(:), s0, sigma, amp
-   !    real(r8) :: out(size(s))
+   subroutine try_dealloc_pot
+      use global, only : dpot_dph, dpot_dth, gradpar_pot_super, j_super
 
-   !    out = amp * exp(-((s - s0)**2) / sigma)
-   ! end function gaussian_profile
+      if (allocated(dpot_dph)) deallocate(dpot_dph)
+      if (allocated(dpot_dth)) deallocate(dpot_dth)
+      if (allocated(gradpar_pot_super)) deallocate(gradpar_pot_super)
+      if (allocated(j_super)) deallocate(j_super)
+
+   end subroutine try_dealloc_pot
 
    subroutine init_pot(profiles, ms, ns, fs, time)
       use global
@@ -26,6 +29,8 @@ contains
       t = time
       len_t = size(time)
       prof_nm = profiles
+
+      call try_dealloc_pot
 
       allocate(dpot_dph(len_s, len_th, len_ph, num_modes))
       allocate(dpot_dth(len_s, len_th, len_ph, num_modes))
@@ -51,15 +56,31 @@ contains
       end do
       !$OMP END PARALLEL DO
 
-      !$OMP PARALLEL DO PRIVATE(k)
-      do k=1, num_modes
-         gradpar_pot_super(:,:,:,1,k) = 0
-         gradpar_pot_super(:,:,:,2,k) = inv_mod_b2 * (b_super(:,:,:,2) * dpot_dth(:,:,:,k) + &
-            b_super(:,:,:,3) * dpot_dph(:,:,:,k))
-         gradpar_pot_super(:,:,:,3,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,3)
-         gradpar_pot_super(:,:,:,2,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,2)
+      !$OMP PARALLEL DO PRIVATE(i, j, k, l)
+      do l=1, num_modes
+         do k=1, len_ph
+            do j=1, len_th
+               do i=1, len_s
+                  gradpar_pot_super(i,j,k,1,l) = 0
+                  gradpar_pot_super(i,j,k,2,l) = inv_mod_b2(i,j,k) * (b_super(i,j,k,2) * dpot_dth(i,j,k,l) + &
+                     b_super(i,j,k,3) * dpot_dph(i,j,k,l))
+                  gradpar_pot_super(i,j,k,3,l) = gradpar_pot_super(i,j,k,2,l) * b_super(i,j,k,3)
+                  gradpar_pot_super(i,j,k,2,l) = gradpar_pot_super(i,j,k,2,l) * b_super(i,j,k,2)
+               end do
+            end do
+         end do
       end do
       !$OMP END PARALLEL DO
+
+      ! !$OMP PARALLEL DO PRIVATE(l)
+      ! do l=1, num_modes
+      !    gradpar_pot_super(:,:,:,1,l) = 0
+      !    gradpar_pot_super(:,:,:,2,l) = inv_mod_b2 * (b_super(:,:,:,2) * dpot_dth(:,:,:,l) + &
+      !       b_super(:,:,:,3) * dpot_dph(:,:,:,l))
+      !    gradpar_pot_super(:,:,:,3,l) = gradpar_pot_super(:,:,:,2,l) * b_super(:,:,:,3)
+      !    gradpar_pot_super(:,:,:,2,l) = gradpar_pot_super(:,:,:,2,l) * b_super(:,:,:,2)
+      ! end do
+      ! !$OMP END PARALLEL DO
 
    end subroutine potential_gradients
 
@@ -67,7 +88,6 @@ contains
       use global
       use helper
       use derivatives
-      ! type(vector_grid) :: curl_pot
       complex(r8), allocatable :: curl_pot(:,:,:,:), tmp(:,:,:,:)
       integer :: l
 

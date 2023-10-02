@@ -1,10 +1,14 @@
 module constants
 
+   use iso_fortran_env
+
    implicit none
 
    !  Kinds
-   integer, parameter :: r8 = selected_real_kind(15, 200)
-   integer, parameter :: i8 = selected_int_kind(16)
+   ! integer, parameter :: r8 = selected_real_kind(15, 200)
+   ! integer, parameter :: i8 = selected_int_kind(16)
+   integer, parameter :: r8 = real64
+   integer, parameter :: i8 = int64
 
    !  Physical constants
    real(r8), parameter :: PI   = 4.0_8 * atan(1.0_8)

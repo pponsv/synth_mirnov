@@ -1,7 +1,6 @@
 module global
-   use, intrinsic :: iso_c_binding
+
    use constants
-   ! use types
 
    implicit none
 
@@ -24,10 +23,8 @@ module global
    !  Scalar quantities
    real(r8), allocatable, dimension(:,:,:) :: mod_b, sqrt_g, inv_sqrt_g, inv_mod_b2
    !  Basis and metric tensor
-   ! type(vector_grid) :: e_sub_s, e_sub_th, e_sub_ph
    real(r8), allocatable, dimension(:,:,:,:) :: e_sub_s, e_sub_th, e_sub_ph
    real(r8), allocatable, dimension(:,:,:,:,:) :: g_sub_ij
-   ! type(metric_tensor) :: g_sub_ij
 
    !  POTENTIALS
 
@@ -41,15 +38,14 @@ module global
    complex(r8), allocatable, dimension(:,:) :: prof_nm
    !  Derivatives of the potential
    complex(r8), allocatable, dimension(:,:,:,:) :: dpot_dth, dpot_dph
-   !
+   !  Parallel gradient, currents
    complex(r8), allocatable, dimension(:,:,:,:,:) :: gradpar_pot_super, j_super
 
-   !  Gradients etc
+   !  GRADIENTS
+
    !  FFTfreqs for derivatives
    real(r8), allocatable, dimension(:) :: th_freqs, ph_freqs
    real(r8), allocatable, dimension(:,:) :: fth, fph
-   !  FFT plans
-   type(C_PTR) :: fft_plan_2d, ifft_plan_2d
 
 contains
 
