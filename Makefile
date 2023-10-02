@@ -1,6 +1,6 @@
 LIBNAME = synth_mirnov_lib
 # OPT_FLAG = -fcheck=all -Og -fbacktrace 
-OPT_FLAG = -O3
+OPT_FLAG = -O2
 SRC_LIB = ./src_lib
 OBJ_DIR = ./bld
 F90_LIB = $(wildcard $(SRC_LIB)/*.f90)

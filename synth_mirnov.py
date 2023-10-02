@@ -10,6 +10,9 @@ SAVE_BOOZ = False
 # LOAD_BOOZ = False
 # SAVE_BOOZ = True
 
+LEN_THETA = 64
+LEN_PHI = 128
+
 # sm.test_meshgrid()
 # exit()
 
@@ -41,19 +44,19 @@ if LOAD_BOOZ is False:
     booz = vl.Booz(
         # "./device/tjii/100_44_64/boozmn_100_44_64_0.0.nc",
         "/home/pedro/MEGA/00_doctorado/research/VMEC/TJ-II/100_44_64.0.0/boozmn_100_44_64_0.0.nc",
-        theta=np.linspace(0, 2 * np.pi, 64 + 1)[:-1],
-        phi=np.linspace(0, 2 * np.pi, 128 + 1)[:-1],
+        theta=np.linspace(0, 2 * np.pi, LEN_THETA + 1)[:-1],
+        phi=np.linspace(0, 2 * np.pi, LEN_PHI + 1)[:-1],
     )
     booz.get_vectors()
     if SAVE_BOOZ is True:
         import pickle
 
-        with open("./booz_pickles/booz_TJII.pkl", "wb") as tfile:
+        with open(f"./booz_pickles/booz_TJII_{LEN_THETA}_{LEN_PHI}.pkl", "wb") as tfile:
             pickle.dump(booz, tfile)
 elif LOAD_BOOZ is True:
     import pickle
 
-    with open("./booz_pickles/booz_TJII.pkl", "rb") as tfile:
+    with open(f"./booz_pickles/booz_TJII_{LEN_THETA}_{LEN_PHI}.pkl", "rb") as tfile:
         booz = pickle.load(tfile)
 else:
     print("UNBOUND BOOZ")
@@ -65,28 +68,28 @@ else:
 
 time = np.linspace(0, 0.03, 40)
 potentials = [
+    # potential(
+    #     booz.s,
+    #     m=5,
+    #     n=8,
+    #     freq=150,
+    #     profile_function=gaussian_profile,
+    #     amp=15,
+    #     phase=np.angle(0),
+    #     s0=0.3,
+    #     sigma=0.05,
+    # ),
     potential(
         booz.s,
-        m=5,
-        n=8,
+        m=4,
+        n=7,
         freq=150,
         profile_function=gaussian_profile,
         amp=15,
         phase=np.angle(0),
         s0=0.4,
-        sigma=0.05,
+        sigma=0.03,
     ),
-    # potential(
-    #     booz.s,
-    #     m=4,
-    #     n=7,
-    #     freq=80,
-    #     profile_function=gaussian_profile,
-    #     amp=5 + 0.1j,
-    #     phase=np.angle(0),
-    #     s0=0.4,
-    #     sigma=0.03,
-    # ),
 ]
 
 tic()

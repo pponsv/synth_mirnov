@@ -8,7 +8,6 @@ contains
 
    subroutine main_loop(db_coils)
       use global
-      ! use types
       use potential, only : potential_gradients, potential_curls
 
       real(r8), intent(out) :: db_coils(3, num_coils, len_t)
@@ -18,10 +17,10 @@ contains
       real(r8), dimension(len_s, len_th, len_ph, 3)  :: us, uth, uph
       integer :: i, j, k
 
-      print *, "MAIN LOOP"
-      print *, "num_coils=", num_coils, "len_t=", len_t
-      print *, "GRID SIZE=", len_s, len_th, len_ph
-      print *, "DB SIZE=", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
+      write (*, '(/, A, /)') "MAIN LOOP"
+      write (*, '(2(A12, I5, 3X, /))') "NUM COILS = ", num_coils, "len_t =     ", len_t
+      write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
+      write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
 
       int_factor = delta_s * delta_th * delta_ph
       db_coils = 0.
@@ -33,7 +32,7 @@ contains
 
       do idx_coil=1, num_coils
 
-         print *, 'COIL: ', idx_coil, '  (total ', num_coils, ')'
+         write (*, '(A6, I3, A3, I0)') 'COIL: ', idx_coil, ' / ', num_coils
 
          call init_coil(idx_coil, us, uth, uph)
 
@@ -73,27 +72,25 @@ contains
             do i=1, len_s
                dbx = dbx + (es(i, j, k, 1) * j_super(i, j, k, 1, idx_mode) + &
                   eth(i, j, k, 1) * j_super(i, j, k, 2, idx_mode) + &
-                  eph(i, j, k, 1) * j_super(i, j, k, 3, idx_mode)) * int_factor
+                  eph(i, j, k, 1) * j_super(i, j, k, 3, idx_mode))
                dby = dby + (es(i, j, k, 2) * j_super(i, j, k, 1, idx_mode) + &
                   eth(i, j, k, 2) * j_super(i, j, k, 2, idx_mode) + &
-                  eph(i, j, k, 2) * j_super(i, j, k, 3, idx_mode)) * int_factor
+                  eph(i, j, k, 2) * j_super(i, j, k, 3, idx_mode))
                dbz = dbz + (es(i, j, k, 3) * j_super(i, j, k, 1, idx_mode) + &
                   eth(i, j, k, 3) * j_super(i, j, k, 2, idx_mode) + &
-                  eph(i, j, k, 3) * j_super(i, j, k, 3, idx_mode))* int_factor
+                  eph(i, j, k, 3) * j_super(i, j, k, 3, idx_mode))
             end do
          end do
       end do
       !$OMP END PARALLEL DO
 
-      db = - (/ dbx, dby, dbz /) / (4*pi)
+      db = - (/ dbx, dby, dbz /) * int_factor / (4*pi)
 
    end function integrate_mode
 
 
    subroutine init_coil(idx_coil, us, uth, uph)
-      ! use types
       use helper
-      ! use global
       use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
          len_s, len_th, len_ph, sqrt_g
       real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph

@@ -55,8 +55,8 @@ contains
       do k=1, num_modes
          gradpar_pot_super(:,:,:,1,k) = 0
          gradpar_pot_super(:,:,:,2,k) = inv_mod_b2 * (b_super(:,:,:,2) * dpot_dth(:,:,:,k) + &
-            b_super(:,:,:,2) * dpot_dph(:,:,:,k))
-         gradpar_pot_super(:,:,:,2,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,2)
+            b_super(:,:,:,3) * dpot_dph(:,:,:,k))
+         gradpar_pot_super(:,:,:,3,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,3)
          gradpar_pot_super(:,:,:,2,k) = gradpar_pot_super(:,:,:,2,k) * b_super(:,:,:,2)
       end do
       !$OMP END PARALLEL DO

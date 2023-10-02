@@ -10,14 +10,14 @@ contains
       use global, only : fft_plan_2d, ifft_plan_2d, len_th, len_ph
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
 
-      print *, 'PLANS', fft_plan_2d, ifft_plan_2d
+      ! print *, 'PLANS', fft_plan_2d, ifft_plan_2d
 
       fft_plan_2d = fftw_plan_dft_2d(int(len_ph, 4), int(len_th, 4), in, out, &
          FFTW_FORWARD, FFTW_ESTIMATE)
       ifft_plan_2d = fftw_plan_dft_2d(int(len_ph, 4), int(len_th, 4), out, in, &
          FFTW_BACKWARD, FFTW_ESTIMATE)
 
-      print *, 'PLANS', fft_plan_2d, ifft_plan_2d
+      ! print *, 'PLANS', fft_plan_2d, ifft_plan_2d
 
    end subroutine plan_ffts
 
