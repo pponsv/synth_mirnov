@@ -4,6 +4,7 @@ booz_pickles/
 device/
 lib/
 .*/
+__*__/
 
 *.cpython*
 *.o
