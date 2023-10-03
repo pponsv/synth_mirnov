@@ -31,3 +31,7 @@ def init_potentials(potentials, time):
         fs=[pot.freq for pot in potentials],
         time=time,
     )
+
+
+def run(time, coil_positions):
+    return sm.run(len(coil_positions), len(time))
