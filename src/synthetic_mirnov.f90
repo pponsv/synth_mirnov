@@ -185,14 +185,40 @@ contains
 
    end subroutine test_cross
 
-   subroutine get_j_super(newj, len_s, len_th, len_ph, num_modes)
+   subroutine get_j_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super
       integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
-      complex(r8), intent(out) :: newj(len_s, len_th, len_ph, 3, num_modes)
+      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
 
-      newj = j_super
+      out = j_super
 
    end subroutine get_j_super
+
+   subroutine get_j_xyz(out, len_s, len_th, len_ph, num_modes)
+      use global, only : j_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph
+      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      integer :: j, k
+
+      !$OMP PARALLEL DO PRIVATE(j, k)
+      do k=1, num_modes
+         do j=1, 3
+            out(:,:,:,j,k) = j_super(:,:,:,1,k) * es(:,:,:,j) + j_super(:,:,:,2,k) * eth(:,:,:,j) +&
+               j_super(:,:,:,3,k) * eph(:,:,:,j)
+         end do
+      end do
+      !$OMP END PARALLEL DO
+
+   end subroutine get_j_xyz
+
+   subroutine get_gradpar_pot(out, len_s, len_th, len_ph, num_modes)
+      use global, only : gradpar_pot_super
+      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+
+      out = gradpar_pot_super
+
+   end subroutine get_gradpar_pot
 
 end module synthetic_mirnov
 

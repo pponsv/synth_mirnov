@@ -10,8 +10,8 @@ SAVE_BOOZ = False
 # LOAD_BOOZ = False
 # SAVE_BOOZ = True
 
-LEN_THETA = 150
-LEN_PHI = 400
+LEN_THETA = 64
+LEN_PHI = 128
 
 # sm.test_meshgrid()
 # exit()
@@ -25,12 +25,22 @@ def ramp_soft(x, y, x0, x1, k):
     return 0.5 * y * ((1 + np.tanh(k * (x - x0)) * np.tanh(k * (x1 - x))))
 
 
-def gaussian_forced_zero(s, s0, amp, sigma, phase=0):
+def ramp_hard(x, y, x0=0.0, x1=1.0, k=0.01):
+    return np.nan_to_num((y * ((x - x0) ** k) * (x1 - x) ** k), nan=0.0)
+
+
+def gaussian_forced_zero_soft(s, s0, amp, sigma, phase=0):
     return ramp_soft(s, gaussian_profile(s, s0, amp, sigma, phase), 0.05, 0.95, 50)
 
 
+def gaussian_forced_zero_hard(s, s0, amp, sigma, phase=0):
+    return ramp_hard(s, gaussian_profile(s, s0, amp, sigma, phase), 0.05, 0.95, 0.01)
+
+
 class potential:
-    def __init__(self, s, m, n, freq, profile_function=gaussian_forced_zero, **kwargs):
+    def __init__(
+        self, s, m, n, freq, profile_function=gaussian_forced_zero_soft, **kwargs
+    ):
         self.s = s
         self.m = m
         self.n = n
@@ -88,10 +98,11 @@ potentials = [
         m=5,
         n=8,
         freq=150,
-        profile_function=gaussian_profile,
+        profile_function=gaussian_forced_zero_hard,
+        # profile_function=gaussian_profile,
         amp=15,
         phase=np.angle(0),
-        s0=0.3,
+        s0=0.4,
         sigma=0.05,
     ),
     # potential(
