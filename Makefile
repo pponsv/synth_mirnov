@@ -6,8 +6,8 @@ OBJ_DIR = ./bld
 F90_LIB = $(wildcard $(SRC_LIB)/*.f90)
 OFILES_LIB = $(patsubst $(SRC_LIB)/%.f90,$(OBJ_DIR)/%.o,$(F90_LIB))
 
-OFILE_FLAGS = -fPIC $(OPT_FLAG) -J./bld/ -I./bld/ -ffree-form -fopenmp -I/usr/include
-F2PY_FLAGS = -fPIC $(OPT_FLAG) -ffree-form -fopenmp -L./lib/ -I./bld/  -L/usr/lib -flto
+OFILE_FLAGS = -fPIC $(OPT_FLAG) -J./bld/ -I./bld/ -ffree-form -fopenmp -I/usr/include -std=f2008
+F2PY_FLAGS = -fPIC $(OPT_FLAG) -ffree-form -fopenmp -L./lib/ -I./bld/  -L/usr/lib -flto -std=f2008
 
 run_py : compile_py
 	python3 synth_mirnov.py

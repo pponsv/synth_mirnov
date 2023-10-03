@@ -17,6 +17,6 @@ module constants
    real(r8), parameter :: MU0  = 1.25663706212e-6_8
 
    !  Misc
-   complex(r8), parameter :: imag = complex(0, 1._r8)
+   complex(r8), parameter :: imag = cmplx(0, 1._r8)
 
 end module constants
