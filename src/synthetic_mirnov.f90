@@ -9,7 +9,9 @@ module kinds_f2py
 end module kinds_f2py
 
 module synthetic_mirnov
+
    use kinds_f2py
+
    implicit none
 
 contains
@@ -188,6 +190,7 @@ contains
 
    end subroutine test_cross
 
+
    subroutine get_j_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super
       integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
@@ -196,6 +199,7 @@ contains
       out = j_super
 
    end subroutine get_j_super
+
 
    subroutine get_j_xyz(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph
@@ -215,6 +219,7 @@ contains
 
    end subroutine get_j_xyz
 
+
    subroutine get_gradpar_pot_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : gradpar_pot_super
       integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
@@ -223,6 +228,7 @@ contains
       out = gradpar_pot_super
 
    end subroutine get_gradpar_pot_super
+
 
    subroutine get_gradpar_pot_xyz(out, len_s, len_th, len_ph, num_modes)
       use global, only : gradpar_pot_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph
