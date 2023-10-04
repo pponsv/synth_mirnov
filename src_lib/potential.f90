@@ -15,6 +15,7 @@ contains
 
    end subroutine try_dealloc_pot
 
+
    subroutine init_pot(profiles, ms, ns, fs, time)
       use global
       integer(i8), intent(in) :: ms(:), ns(:)
@@ -38,6 +39,7 @@ contains
       allocate(j_super(len_s, len_th, len_ph, 3, num_modes))
 
    end subroutine init_pot
+
 
    subroutine potential_gradients
       use global
@@ -83,6 +85,7 @@ contains
       ! !$OMP END PARALLEL DO
 
    end subroutine potential_gradients
+
 
    subroutine potential_curls
       use global

@@ -23,6 +23,7 @@ contains
       real(r8), intent(in), dimension(len_s_b, len_th_b, len_ph_b) :: b_mod_b, sqrt_g_b, x, y, z
       integer :: i
 
+      !  Coordinate grids
       len_s = len_s_b
       len_th = len_th_b
       len_ph = len_ph_b
@@ -31,17 +32,20 @@ contains
       th = th_b
       ph = ph_b
 
+      !  We assume a uniform grid. For non-uniform grids, considerable
+      !  modification is needed
       delta_s = s(2) - s(1)
       delta_th = th(2) - th(1)
       delta_ph = ph(2) - ph(1)
 
+      !  FFTs for derivatives
       th_freqs = 2*PI*fftfreqs(len_th, delta_th)
       ph_freqs = 2*PI*fftfreqs(len_ph, delta_ph)
       allocate(fth(len_th, len_ph), fph(len_th, len_ph))
       call meshgrid(ph_freqs, th_freqs, fph, fth)
-
       call plan_ffts
 
+      !  Profiles, magnetic field and jacobian
       iota = iota_b
       mod_b = b_mod_b
       inv_mod_b2 = 1. / b_mod_b**2
@@ -51,12 +55,15 @@ contains
       allocate(b_super(len_s, len_th, len_ph, 3))
       allocate(xyz_grid(len_s, len_th, len_ph, 3))
 
+      !  phi_b_g is the derivative of the flux wrt the radial coordinate,
+      !  equal to the flux at the LCFS if the radial coordinate is s
       b_super(:,:,:,1) = 0
       b_super(:,:,:,3) = -phi_b_g/(2*pi*sqrt_g)
       do i=1, len_s
          b_super(i, :, :, 2) = b_super(i, :, :, 3) * iota(i)
       end do
 
+      !  Cartesian grid
       xyz_grid(:,:,:,1) = x
       xyz_grid(:,:,:,2) = y
       xyz_grid(:,:,:,3) = z
@@ -74,10 +81,6 @@ contains
       e_sub_s = e_sub_s_b
       e_sub_th = e_sub_th_b
       e_sub_ph = e_sub_ph_b
-
-      print *, 'e_s', size(e_sub_s, 1), size(e_sub_s, 2), size(e_sub_s, 3), size(e_sub_s, 4)
-      print *, 'e_th', size(e_sub_th, 1), size(e_sub_th, 2), size(e_sub_th, 3), size(e_sub_th, 4)
-      print *, 'e_ph', size(e_sub_ph, 1), size(e_sub_ph, 2), size(e_sub_ph, 3), size(e_sub_ph, 4)
 
       g_sub_ij = metric_tensor(e_sub_s, e_sub_th, e_sub_ph)
 
@@ -203,7 +206,8 @@ contains
       !$OMP PARALLEL DO PRIVATE(j, k)
       do k=1, num_modes
          do j=1, 3
-            out(:,:,:,j,k) = j_super(:,:,:,1,k) * es(:,:,:,j) + j_super(:,:,:,2,k) * eth(:,:,:,j) +&
+            out(:,:,:,j,k) = j_super(:,:,:,1,k) * es(:,:,:,j) + &
+               j_super(:,:,:,2,k) * eth(:,:,:,j) + &
                j_super(:,:,:,3,k) * eph(:,:,:,j)
          end do
       end do
@@ -211,14 +215,32 @@ contains
 
    end subroutine get_j_xyz
 
-   subroutine get_gradpar_pot(out, len_s, len_th, len_ph, num_modes)
+   subroutine get_gradpar_pot_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : gradpar_pot_super
       integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
       complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
 
       out = gradpar_pot_super
 
-   end subroutine get_gradpar_pot
+   end subroutine get_gradpar_pot_super
+
+   subroutine get_gradpar_pot_xyz(out, len_s, len_th, len_ph, num_modes)
+      use global, only : gradpar_pot_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph
+      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      integer :: j, k
+
+      !$OMP PARALLEL DO PRIVATE(j, k)
+      do k=1, num_modes
+         do j=1, 3
+            out(:,:,:,j,k) = gradpar_pot_super(:,:,:,1,k) * es(:,:,:,j) + &
+               gradpar_pot_super(:,:,:,2,k) * eth(:,:,:,j) + &
+               gradpar_pot_super(:,:,:,3,k) * eph(:,:,:,j)
+         end do
+      end do
+      !$OMP END PARALLEL DO
+
+   end subroutine get_gradpar_pot_xyz
 
 end module synthetic_mirnov
 

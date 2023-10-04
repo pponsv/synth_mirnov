@@ -77,13 +77,13 @@ contains
 
       len_y = size(y)
 
-      dy(1) = (-3 * y(1) + 4 * y(2) - 1 * y(3)) / (2 * dx)
-      dy(2) = (-2 * y(1) - 3 * y(2) + 6 * y(3) - 1 * y(4)) / (6 * dx)
+      dy(1) = (-3*y(1) + 4*y(2) - 1*y(3)) / (2*dx)
+      dy(2) = (-2*y(1) - 3*y(2) + 6*y(3) - 1*y(4)) / (6*dx)
       do i=3, size(y)-2
-         dy(i) = (1 * y(i - 2) - 8 * y(i - 1) + 8 * y(i + 1) - 1 * y(i + 2)) / (12 * dx)
+         dy(i) = (1*y(i - 2) - 8*y(i - 1) + 8*y(i + 1) - 1*y(i + 2)) / (12*dx)
       end do
-      dy(size(y)-1) = (1 * y(len_y-3) - 6 * y(len_y-2) + 3 * y(len_y-1) + 2 * y(len_y)) / (6 * dx)
-      dy(size(y)) = (1 * y(len_y-2) - 4 * y(len_y-1) + 3 * y(len_y)) / (2 * dx)
+      dy(size(y) - 1) = (1*y(len_y - 3) - 6*y(len_y - 2) + 3*y(len_y - 1) + 2*y(len_y)) / (6*dx)
+      dy(size(y)) = (1*y(len_y - 2) - 4*y(len_y - 1) + 3*y(len_y)) / (2*dx)
 
    end function finite_differences
 

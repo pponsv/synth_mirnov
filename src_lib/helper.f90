@@ -25,6 +25,7 @@ contains
 
    end function cross_product_cplx
 
+
    function cross_product_real(a, b) result(out)
       real(r8), dimension(:,:,:,:), intent(in) :: a, b
       real(r8) :: out(size(a, 1), size(a, 2), size(a, 3), 3)
@@ -63,6 +64,7 @@ contains
 
    end function dot_product_cplx
 
+
    function dot_product_real(a, b) result(out)
       real(r8), dimension(:,:,:,:), intent(in) :: a, b
       real(r8) :: out(size(a, 1), size(a, 2), size(a, 3))
@@ -79,6 +81,7 @@ contains
       !$OMP END PARALLEL DO
 
    end function dot_product_real
+
 
    function scalar_product_cplx(vec, sca) result(out)
       complex(r8), intent(in) :: vec(:,:,:,:) , sca(:,:,:)
@@ -116,6 +119,7 @@ contains
 
    end function scalar_product_real
 
+
    function lower_indices(vec, gij) result(out)
       complex(r8), intent(in) :: vec(:,:,:,:)
       real(r8), intent(in) :: gij(:,:,:,:,:)
@@ -141,6 +145,7 @@ contains
 
    end function lower_indices
 
+
    function metric_tensor(es, eth, eph) result(out)
       real(r8), intent(in) :: es(:,:,:,:), eth(:,:,:,:), eph(:,:,:,:)
       real(r8) :: out(size(es, 1), size(es, 2), size(es, 3), 3, 3)
@@ -158,6 +163,7 @@ contains
       out(:,:,:,3,3) = dot_product_real(eph, eph)
 
    end function metric_tensor
+
 
    subroutine checknans(in, len_in)
       real(r8) :: in(*)

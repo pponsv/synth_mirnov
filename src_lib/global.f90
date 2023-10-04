@@ -47,6 +47,4 @@ module global
    real(r8), allocatable, dimension(:) :: th_freqs, ph_freqs
    real(r8), allocatable, dimension(:,:) :: fth, fph
 
-contains
-
 end module global

@@ -5,8 +5,6 @@ module constants
    implicit none
 
    !  Kinds
-   ! integer, parameter :: r8 = selected_real_kind(15, 200)
-   ! integer, parameter :: i8 = selected_int_kind(16)
    integer, parameter :: r8 = real64
    integer, parameter :: i8 = int64
 

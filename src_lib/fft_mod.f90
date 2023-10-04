@@ -24,6 +24,7 @@ contains
 
    end subroutine plan_ffts
 
+
    function fft_2d(in) result(out)
       use global, only : len_th, len_ph
       complex(r8) :: out(len_th, len_ph), in(len_th, len_ph)
@@ -31,6 +32,7 @@ contains
       call fftw_execute_dft(fft_plan_2d, in, out)
 
    end function fft_2d
+
 
    function ifft_2d(in) result(out)
       use global, only : len_th, len_ph
@@ -40,6 +42,7 @@ contains
       out = out / (len_th * len_ph)
 
    end function ifft_2d
+
 
    function fftfreqs(n, d) result(freqs)
       integer(i8), intent(in) :: n
@@ -60,6 +63,7 @@ contains
       freqs = freqs * fac
 
    end function fftfreqs
+
 
    subroutine meshgrid(a, b, aa, bb)
       real(r8), intent(in) :: a(:), b(:)
