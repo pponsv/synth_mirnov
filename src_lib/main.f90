@@ -17,7 +17,7 @@ contains
       real(r8), dimension(len_s, len_th, len_ph, 3)  :: us, uth, uph
       integer :: i, j, k
 
-      write (*, '(/, A, /)') "MAIN LOOP"
+      write (*, '(/, A)') "MAIN LOOP"
       write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
       write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
       write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
@@ -30,19 +30,19 @@ contains
 
       call potential_curls
 
-      write (*, '(A6)', advance='no') 'COIL: '
-
       do idx_coil=1, num_coils
 
-         write (*, '(I4)', advance="no") idx_coil
+         write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
          if (idx_coil == num_coils) write (*, '(/)')
 
          call init_coil(idx_coil, us, uth, uph)
 
+         !  Integral for each mode
          do idx_mode=1, num_modes
             db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, int_factor, us, uth, uph)
          end do
 
+         !  Time evolution
          do idx_time=1, len_t
             do idx_mode=1, num_modes
                db_coils(:, idx_coil, idx_time) = db_coils(:, idx_coil, idx_time) + &
