@@ -192,27 +192,38 @@ contains
 
 
    subroutine get_j_super(out, len_s, len_th, len_ph, num_modes)
-      use global, only : j_super
+      use global, only : j_super, ws_pot
+      use constants
       integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
       complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      complex(r8) :: fac(size(ws_pot))
+      integer :: k
 
-      out = j_super
+      fac = - imag / (mu0 * 1000 * ws_pot)
+      !$OMP PARALLEL DO PRIVATE(k)
+      do k=1, num_modes
+         out(:,:,:,:,k) = fac(k) * j_super(:,:,:,:,k)
+      end do
+      !$OMP END PARALLEL DO
 
    end subroutine get_j_super
 
 
    subroutine get_j_xyz(out, len_s, len_th, len_ph, num_modes)
-      use global, only : j_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph
+      use global, only : j_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph, ws_pot
+      use constants
       integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
       complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      complex(r8) :: fac(size(ws_pot))
       integer :: j, k
 
+      fac = - imag / (mu0 * 1000 * ws_pot)
       !$OMP PARALLEL DO PRIVATE(j, k)
       do k=1, num_modes
          do j=1, 3
-            out(:,:,:,j,k) = j_super(:,:,:,1,k) * es(:,:,:,j) + &
+            out(:,:,:,j,k) = fac(k) * (j_super(:,:,:,1,k) * es(:,:,:,j) + &
                j_super(:,:,:,2,k) * eth(:,:,:,j) + &
-               j_super(:,:,:,3,k) * eph(:,:,:,j)
+               j_super(:,:,:,3,k) * eph(:,:,:,j))
          end do
       end do
       !$OMP END PARALLEL DO
