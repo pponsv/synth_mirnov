@@ -1,4 +1,4 @@
-.PHONY : clean compile_lib compile_py
+.PHONY : clean compile_lib compile_py rebuild
 
 LIBNAME = synth_mirnov_lib
 # OPT_FLAG = -fcheck=all -Og -fbacktrace 
@@ -13,8 +13,10 @@ OFILES_LIB = $(patsubst $(SRC_LIB)/%.f90,$(OBJ_DIR)/%.o,$(F90_LIB))
 OFILE_FLAGS = -fPIC $(OPT_FLAG) -J$(OBJ_DIR)/ -I$(OBJ_DIR)/ -ffree-form -fopenmp -I/usr/include -std=f2008
 F2PY_FLAGS = -fPIC $(OPT_FLAG) -ffree-form -fopenmp -L./lib/ -I$(OBJ_DIR)/  -L/usr/lib -flto -std=f2008
 
-compile_py : clean compile_lib $(SRC_F2PY)/synthetic_mirnov.f90
-	f2py -c -m synth_mirnov  --f90flags='$(F2PY_FLAGS)' -lgomp -lfftw3 $(SRC_F2PY)/synthetic_mirnov.f90 $(LIB_DIR)/libsynth_mirnov_lib.a
+rebuild : clean compile_lib compile_py 
+
+compile_py : $(LIB_DIR)/lib$(LIBNAME).a $(SRC_F2PY)/synthetic_mirnov.f90
+	f2py -c -m synth_mirnov --f90flags='$(F2PY_FLAGS)' -lgomp -lfftw3 $(SRC_F2PY)/synthetic_mirnov.f90 $(LIB_DIR)/libsynth_mirnov_lib.a
 
 compile_lib : $(LIB_DIR)/lib$(LIBNAME).a
 
