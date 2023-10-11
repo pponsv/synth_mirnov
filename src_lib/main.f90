@@ -30,9 +30,12 @@ contains
 
       call potential_curls
 
+      write (*, '(A6)', advance='no') 'COIL: '
+
       do idx_coil=1, num_coils
 
-         write (*, '(A6, I3, A3, I0)') 'COIL: ', idx_coil, ' / ', num_coils
+         write (*, '(I4)', advance="no") idx_coil
+         if (idx_coil == num_coils) write (*, '(/)')
 
          call init_coil(idx_coil, us, uth, uph)
 
