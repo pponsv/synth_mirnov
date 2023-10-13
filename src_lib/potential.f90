@@ -74,16 +74,6 @@ contains
       end do
       !$OMP END PARALLEL DO
 
-      ! !$OMP PARALLEL DO PRIVATE(l)
-      ! do l=1, num_modes
-      !    gradpar_pot_super(:,:,:,1,l) = 0
-      !    gradpar_pot_super(:,:,:,2,l) = inv_mod_b2 * (b_super(:,:,:,2) * dpot_dth(:,:,:,l) + &
-      !       b_super(:,:,:,3) * dpot_dph(:,:,:,l))
-      !    gradpar_pot_super(:,:,:,3,l) = gradpar_pot_super(:,:,:,2,l) * b_super(:,:,:,3)
-      !    gradpar_pot_super(:,:,:,2,l) = gradpar_pot_super(:,:,:,2,l) * b_super(:,:,:,2)
-      ! end do
-      ! !$OMP END PARALLEL DO
-
    end subroutine potential_gradients
 
 

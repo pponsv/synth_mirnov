@@ -93,10 +93,10 @@ contains
    subroutine init_coil(idx_coil, us, uth, uph)
       use helper, only : scalar_product_real, cross_product_real, dot_product_real
       use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
-         len_s, len_th, len_ph, sqrt_g
+         len_s, len_th, len_ph, sqrt_g, r_3_sqrtg
       real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
       real(r8), dimension(len_s, len_th, len_ph, 3) :: r_coil
-      real(r8) :: r_3_sqrtg(len_s, len_th, len_ph)
+      ! real(r8) :: r_3_sqrtg(len_s, len_th, len_ph)
       integer, intent(in) :: idx_coil
 
       r_coil(:,:,:,1) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)

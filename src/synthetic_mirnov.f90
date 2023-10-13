@@ -52,7 +52,7 @@ contains
       mod_b = b_mod_b
       inv_mod_b2 = 1. / b_mod_b**2
       sqrt_g = sqrt_g_b
-      inv_sqrt_g = 1. / sqrt_g_b
+      inv_sqrt_g = 1. / sqrt_g
 
       allocate(b_super(len_s, len_th, len_ph, 3))
       allocate(xyz_grid(len_s, len_th, len_ph, 3))
@@ -258,6 +258,16 @@ contains
       !$OMP END PARALLEL DO
 
    end subroutine get_gradpar_pot_xyz
+
+
+   subroutine get_r_3_sqrtg(out, len_s, len_th, len_ph)
+      use global, only : r_3_sqrtg
+      integer(i8), intent(in) :: len_s, len_th, len_ph
+      real(r8), intent(out) :: out(len_s, len_th, len_ph)
+
+      out = r_3_sqrtg
+
+   end subroutine get_r_3_sqrtg
 
 end module synthetic_mirnov
 

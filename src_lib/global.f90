@@ -21,7 +21,7 @@ module global
    real(r8), allocatable, dimension(:,:,:,:) :: xyz_grid
    complex(r8), allocatable, dimension(:,:,:,:) :: b_super
    !  Scalar quantities
-   real(r8), allocatable, dimension(:,:,:) :: mod_b, sqrt_g, inv_sqrt_g, inv_mod_b2
+   real(r8), allocatable, dimension(:,:,:) :: mod_b, sqrt_g, inv_sqrt_g, inv_mod_b2, r_3_sqrtg
    !  Basis and metric tensor
    real(r8), allocatable, dimension(:,:,:,:) :: e_sub_s, e_sub_th, e_sub_ph
    real(r8), allocatable, dimension(:,:,:,:,:) :: g_sub_ij
