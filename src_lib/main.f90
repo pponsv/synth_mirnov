@@ -10,12 +10,11 @@ contains
       use global
       use potential, only : potential_gradients, potential_curls
 
-      real(r8), intent(out) :: db_coils(3, num_coils, len_t)
+      complex(r8), intent(out) :: db_coils(3, num_coils, len_t)
       complex(r8) :: db(3, num_modes, num_coils)
       integer :: idx_time, idx_coil, idx_mode
       real(r8) :: int_factor
-      real(r8), dimension(len_s, len_th, len_ph, 3)  :: us, uth, uph
-      integer :: i, j, k
+      ! real(r8), dimension(len_s, len_th, len_ph, 3)  :: us, uth, uph
 
       write (*, '(/, A)') "MAIN LOOP"
       write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
@@ -35,7 +34,7 @@ contains
          write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
          if (idx_coil == num_coils) write (*, '(/)')
 
-         call init_coil(idx_coil, us, uth, uph)
+         call init_coil(idx_coil)
 
          !  Integral for each mode
          do idx_mode=1, num_modes
@@ -55,10 +54,10 @@ contains
    end subroutine main_loop
 
 
-   function integrate_mode(idx_mode, int_factor, es, eth, eph) result(db)
+   function integrate_mode(idx_mode, int_factor, us, uth, uph) result(db)
       use global, only: len_s, len_th, len_ph, j_super
       integer, intent(in) :: idx_mode
-      real(r8), intent(in), dimension(len_s, len_th, len_ph, 3) :: es, eth, eph
+      real(r8), intent(in), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
       real(r8) :: int_factor
       complex(r8) :: dbx, dby, dbz, db(3)
       integer :: i, j, k
@@ -71,15 +70,15 @@ contains
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
-               dbx = dbx + (es(i, j, k, 1) * j_super(i, j, k, 1, idx_mode) + &
-                  eth(i, j, k, 1) * j_super(i, j, k, 2, idx_mode) + &
-                  eph(i, j, k, 1) * j_super(i, j, k, 3, idx_mode))
-               dby = dby + (es(i, j, k, 2) * j_super(i, j, k, 1, idx_mode) + &
-                  eth(i, j, k, 2) * j_super(i, j, k, 2, idx_mode) + &
-                  eph(i, j, k, 2) * j_super(i, j, k, 3, idx_mode))
-               dbz = dbz + (es(i, j, k, 3) * j_super(i, j, k, 1, idx_mode) + &
-                  eth(i, j, k, 3) * j_super(i, j, k, 2, idx_mode) + &
-                  eph(i, j, k, 3) * j_super(i, j, k, 3, idx_mode))
+               dbx = dbx + (us(i, j, k, 1) * j_super(i, j, k, 1, idx_mode) + &
+                  uth(i, j, k, 1) * j_super(i, j, k, 2, idx_mode) + &
+                  uph(i, j, k, 1) * j_super(i, j, k, 3, idx_mode))
+               dby = dby + (us(i, j, k, 2) * j_super(i, j, k, 1, idx_mode) + &
+                  uth(i, j, k, 2) * j_super(i, j, k, 2, idx_mode) + &
+                  uph(i, j, k, 2) * j_super(i, j, k, 3, idx_mode))
+               dbz = dbz + (us(i, j, k, 3) * j_super(i, j, k, 1, idx_mode) + &
+                  uth(i, j, k, 3) * j_super(i, j, k, 2, idx_mode) + &
+                  uph(i, j, k, 3) * j_super(i, j, k, 3, idx_mode))
             end do
          end do
       end do
@@ -90,13 +89,12 @@ contains
    end function integrate_mode
 
 
-   subroutine init_coil(idx_coil, us, uth, uph)
+   subroutine init_coil(idx_coil)
       use helper, only : scalar_product_real, cross_product_real, dot_product_real
       use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
-         len_s, len_th, len_ph, sqrt_g, r_3_sqrtg
-      real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
-      real(r8), dimension(len_s, len_th, len_ph, 3) :: r_coil
-      ! real(r8) :: r_3_sqrtg(len_s, len_th, len_ph)
+         us, uth, uph, r_coil, sqrt_g, r_3_sqrtg
+      ! real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
+      ! real(r8), dimension(len_s, len_th, len_ph, 3) :: r_coil
       integer, intent(in) :: idx_coil
 
       r_coil(:,:,:,1) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)

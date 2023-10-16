@@ -7,11 +7,9 @@ module derivatives
 contains
 
    function gradient(in) result(out)
-      use global, only : s, len_s, len_ph, len_th, delta_s, &
-         delta_th, delta_ph, fth, fph
+      use global, only : len_s, len_ph, len_th, delta_s, fth, fph
       complex(r8), intent(in) :: in(len_s, len_th, len_ph)
       complex(r8):: out(len_s, len_th, len_ph, 3)
-      integer :: i, j, k
 
       out(:,:,:,1) = partial_rad(in, delta_s)
       out(:,:,:,2) = partial_fft(in, fth)

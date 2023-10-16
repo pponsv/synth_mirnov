@@ -7,6 +7,7 @@ module global
    !  Coil positions
    integer(i8) :: num_coils
    real(r8), allocatable :: coil_xyz(:,:)
+   real(r8), allocatable, dimension(:,:,:,:) :: us, uth, uph, r_coil
 
    !  GEOMETRY AND MAGNETIC FIELD
 

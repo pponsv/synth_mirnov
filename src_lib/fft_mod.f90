@@ -68,7 +68,7 @@ contains
    subroutine meshgrid(a, b, aa, bb)
       real(r8), intent(in) :: a(:), b(:)
       real(r8), intent(out) :: aa(size(b), size(a)), bb(size(b), size(a))
-      integer :: i, j
+      integer :: i
 
       do i=1, size(b)
          aa(i, :) = a

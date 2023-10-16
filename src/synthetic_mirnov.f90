@@ -62,7 +62,7 @@ contains
 
 
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
-      use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
+      use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij
       use helper, only : metric_tensor, checknans
       integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
       real(8), intent(in), dimension(len_s_b, len_th_b, len_ph_b, 3) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
@@ -90,12 +90,14 @@ contains
 
 
    subroutine init_coils(xyzs, ncoils)
-      use global, only : coil_xyz, num_coils
+      use global, only : coil_xyz, num_coils, len_s, len_th, len_ph, r_coil
       integer(8), intent(in) :: ncoils
       real(8), intent(in) :: xyzs(ncoils, 3)
 
       coil_xyz = transpose(xyzs)
       num_coils = ncoils
+
+      allocate(r_coil(len_s, len_th, len_ph, 3))
 
    end subroutine init_coils
 
@@ -103,7 +105,7 @@ contains
    subroutine run(num_coils_tmp, len_t_tmp, db_coils)
       use main
       integer(8), intent(in) :: num_coils_tmp, len_t_tmp
-      real(8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
+      complex(8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
 
       call main_loop(db_coils)
 
@@ -138,7 +140,7 @@ contains
    function get_potnm(ls, nm) result(out)
       use global, only: prof_nm
       integer :: ls, nm
-      real(8) :: out(nm, ls)
+      complex(8) :: out(nm, ls)
 
       out = prof_nm
 
@@ -158,10 +160,9 @@ contains
 
    subroutine test_gradient(ns, nth, nph, grid, grad)
       use derivatives
-      use global, only : len_s, len_ph, len_th
       integer, intent(in) :: ns, nth, nph
       complex(8), intent(in) :: grid(ns, nth, nph)
-      real(8), intent(out) :: grad(ns, nth, nph, 3)
+      complex(8), intent(out) :: grad(ns, nth, nph, 3)
 
       grad = gradient(grid)
 

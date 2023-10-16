@@ -21,7 +21,6 @@ contains
       integer(i8), intent(in) :: ms(:), ns(:)
       real(r8), intent(in) :: fs(:), time(:)
       complex(r8), intent(in) :: profiles(:,:)
-      integer :: i
 
       num_modes = size(ms)
       ms_pot = ms
@@ -81,7 +80,7 @@ contains
       use global
       use helper
       use derivatives
-      complex(r8), allocatable :: curl_pot(:,:,:,:), tmp(:,:,:,:)
+      complex(r8) :: curl_pot(len_s, len_th, len_ph, 3)
       integer :: l
 
       do l=1, num_modes
