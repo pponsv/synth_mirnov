@@ -1,16 +1,4 @@
-module kinds_f2py
-
-   implicit none
-
-   !  Kinds
-   integer, parameter :: r8 = selected_real_kind(15, 200)
-   integer, parameter :: i8 = selected_int_kind(16)
-
-end module kinds_f2py
-
 module synthetic_mirnov
-
-   use kinds_f2py
 
    implicit none
 
@@ -20,9 +8,9 @@ contains
       len_s_b, len_th_b, len_ph_b)
       use global
       use fft_mod, only: fftfreqs, meshgrid, plan_ffts
-      integer(i8), intent(in) :: len_s_b, len_ph_b, len_th_b
-      real(r8), intent(in) :: s_b(len_s_b), th_b(len_th_b), ph_b(len_ph_b), phi_b_g, iota_b(len_s_b)
-      real(r8), intent(in), dimension(len_s_b, len_th_b, len_ph_b) :: b_mod_b, sqrt_g_b, x, y, z
+      integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
+      real(8), intent(in) :: s_b(len_s_b), th_b(len_th_b), ph_b(len_ph_b), phi_b_g, iota_b(len_s_b)
+      real(8), intent(in), dimension(len_s_b, len_th_b, len_ph_b) :: b_mod_b, sqrt_g_b, x, y, z
       integer :: i
 
       !  Coordinate grids
@@ -76,8 +64,8 @@ contains
    subroutine init_basis(e_sub_s_b, e_sub_th_b, e_sub_ph_b, len_s_b, len_th_b, len_ph_b)
       use global, only : e_sub_s, e_sub_th, e_sub_ph, g_sub_ij, b_super
       use helper, only : metric_tensor, checknans
-      integer(i8), intent(in) :: len_s_b, len_ph_b, len_th_b
-      real(r8), intent(in), dimension(len_s_b, len_th_b, len_ph_b, 3) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
+      integer(8), intent(in) :: len_s_b, len_ph_b, len_th_b
+      real(8), intent(in), dimension(len_s_b, len_th_b, len_ph_b, 3) :: e_sub_s_b, e_sub_th_b, e_sub_ph_b
       integer :: i, j, k
 
       e_sub_s = e_sub_s_b
@@ -91,10 +79,10 @@ contains
 
    subroutine init_pot(profiles, ms, ns, fs, time, num_modes, len_time, len_s)
       use potential, only : init_pot_main => init_pot
-      integer(i8), intent(in) :: num_modes, len_time, len_s
-      integer(i8), intent(in) :: ms(num_modes), ns(num_modes)
-      real(r8), intent(in) :: fs(num_modes), time(len_time)
-      complex(r8), intent(in) :: profiles(num_modes, len_s)
+      integer(8), intent(in) :: num_modes, len_time, len_s
+      integer(8), intent(in) :: ms(num_modes), ns(num_modes)
+      real(8), intent(in) :: fs(num_modes), time(len_time)
+      complex(8), intent(in) :: profiles(num_modes, len_s)
 
       call init_pot_main(profiles=profiles, ms=ms, ns=ns, fs=fs, time=time)
 
@@ -103,8 +91,8 @@ contains
 
    subroutine init_coils(xyzs, ncoils)
       use global, only : coil_xyz, num_coils
-      integer(i8), intent(in) :: ncoils
-      real(r8), intent(in) :: xyzs(ncoils, 3)
+      integer(8), intent(in) :: ncoils
+      real(8), intent(in) :: xyzs(ncoils, 3)
 
       coil_xyz = transpose(xyzs)
       num_coils = ncoils
@@ -114,8 +102,8 @@ contains
 
    subroutine run(num_coils_tmp, len_t_tmp, db_coils)
       use main
-      integer(i8), intent(in) :: num_coils_tmp, len_t_tmp
-      real(r8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
+      integer(8), intent(in) :: num_coils_tmp, len_t_tmp
+      real(8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
 
       call main_loop(db_coils)
 
@@ -124,8 +112,8 @@ contains
 
    function test_fft_main(in) result(out)
       use fft_mod
-      complex(r8) :: in(:,:), nin(size(in,1), size(in, 2))
-      complex(r8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
+      complex(8) :: in(:,:), nin(size(in,1), size(in, 2))
+      complex(8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
 
       call plan_ffts()
 
@@ -150,7 +138,7 @@ contains
    function get_potnm(ls, nm) result(out)
       use global, only: prof_nm
       integer :: ls, nm
-      real(r8) :: out(nm, ls)
+      real(8) :: out(nm, ls)
 
       out = prof_nm
 
@@ -160,8 +148,8 @@ contains
    subroutine test_meshgrid(a, b, la, lb, aa, bb)
       use fft_mod, only: meshgrid
       integer, intent(in) :: la, lb
-      real(r8), intent(in) :: a(la), b(lb)
-      real(r8), intent(out)  :: aa(lb, la), bb(lb, la)
+      real(8), intent(in) :: a(la), b(lb)
+      real(8), intent(out)  :: aa(lb, la), bb(lb, la)
 
       call meshgrid(a, b, aa, bb)
 
@@ -172,8 +160,8 @@ contains
       use derivatives
       use global, only : len_s, len_ph, len_th
       integer, intent(in) :: ns, nth, nph
-      complex(r8), intent(in) :: grid(ns, nth, nph)
-      real(r8), intent(out) :: grad(ns, nth, nph, 3)
+      complex(8), intent(in) :: grid(ns, nth, nph)
+      real(8), intent(out) :: grad(ns, nth, nph, 3)
 
       grad = gradient(grid)
 
@@ -183,8 +171,8 @@ contains
    subroutine test_cross(a, b, l1, l2, l3, out)
       use helper
       integer :: l1, l2, l3
-      real(r8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
-      real(r8), intent(out) :: out(l1, l2, l3, 3)
+      real(8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
+      real(8), intent(out) :: out(l1, l2, l3, 3)
 
       out = cross_product_real(a, b)
 
@@ -194,9 +182,9 @@ contains
    subroutine get_j_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super, ws_pot
       use constants
-      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
-      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
-      complex(r8) :: fac(size(ws_pot))
+      integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      complex(8) :: fac(size(ws_pot))
       integer :: k
 
       fac = - imag / (mu0 * 1000 * ws_pot)
@@ -212,9 +200,9 @@ contains
    subroutine get_j_xyz(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph, ws_pot
       use constants
-      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
-      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
-      complex(r8) :: fac(size(ws_pot))
+      integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      complex(8) :: fac(size(ws_pot))
       integer :: j, k
 
       fac = - imag / (mu0 * 1000 * ws_pot)
@@ -233,8 +221,8 @@ contains
 
    subroutine get_gradpar_pot_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : gradpar_pot_super
-      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
-      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
 
       out = gradpar_pot_super
 
@@ -243,8 +231,8 @@ contains
 
    subroutine get_gradpar_pot_xyz(out, len_s, len_th, len_ph, num_modes)
       use global, only : gradpar_pot_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph
-      integer(i8), intent(in) :: len_s, len_th, len_ph, num_modes
-      complex(r8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
+      integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
       integer :: j, k
 
       !$OMP PARALLEL DO PRIVATE(j, k)
@@ -262,8 +250,8 @@ contains
 
    subroutine get_r_3_sqrtg(out, len_s, len_th, len_ph)
       use global, only : r_3_sqrtg
-      integer(i8), intent(in) :: len_s, len_th, len_ph
-      real(r8), intent(out) :: out(len_s, len_th, len_ph)
+      integer(8), intent(in) :: len_s, len_th, len_ph
+      real(8), intent(out) :: out(len_s, len_th, len_ph)
 
       out = r_3_sqrtg
 
