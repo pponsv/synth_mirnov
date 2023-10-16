@@ -10,8 +10,8 @@ LIB_DIR = ./lib
 F90_LIB = $(wildcard $(SRC_LIB)/*.f90)
 OFILES_LIB = $(patsubst $(SRC_LIB)/%.f90,$(OBJ_DIR)/%.o,$(F90_LIB))
 
-OFILE_FLAGS = -fPIC $(OPT_FLAG) -J$(OBJ_DIR)/ -I$(OBJ_DIR)/ -ffree-form -fopenmp -I/usr/include -std=f2008
-F2PY_FLAGS = -fPIC $(OPT_FLAG) -ffree-form -fopenmp -L./lib/ -I$(OBJ_DIR)/  -L/usr/lib -flto -std=f2008
+OFILE_FLAGS = -fPIC $(OPT_FLAG) -J$(OBJ_DIR)/ -I$(OBJ_DIR)/ -ffree-form -fopenmp -I/usr/include -std=f2008 -ffree-line-length-none
+F2PY_FLAGS = -fPIC $(OPT_FLAG) -ffree-form -fopenmp -L./lib/ -I$(OBJ_DIR)/  -L/usr/lib -flto -std=f2008 -ffree-line-length-none
 
 rebuild : clean compile_lib compile_py 
 
