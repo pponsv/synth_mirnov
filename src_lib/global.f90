@@ -40,7 +40,7 @@ module global
    !  Derivatives of the potential
    complex(r8), allocatable, dimension(:,:,:,:) :: dpot_dth, dpot_dph
    !  Parallel gradient, currents
-   complex(r8), allocatable, dimension(:,:,:,:,:) :: gradpar_pot_super, j_super
+   complex(r8), allocatable, dimension(:,:,:,:,:) :: gradpar_pot_super, j_super, db_all
 
    !  GRADIENTS
 

@@ -101,6 +101,24 @@ contains
    end function scalar_product_cplx
 
 
+   function scalar_product_real_cplx(vec, sca) result(out)
+      real(r8), intent(in) :: vec(:,:,:,:)
+      complex(r8), intent(in) :: sca(:,:,:)
+      complex(r8) :: out(size(vec, 1), size(vec, 2), size(vec, 3), 3)
+      integer :: i, j, k
+
+      !$OMP PARALLEL DO PRIVATE(i, j, k)
+      do k=1, size(vec, 3)
+         do j=1, size(vec, 2)
+            do i=1, size(vec, 1)
+               out(i, j, k, :) = vec(i, j, k, :) * sca(i, j, k)
+            end do
+         end do
+      end do
+      !$OMP END PARALLEL DO
+
+   end function scalar_product_real_cplx
+
    function scalar_product_real(vec, sca) result(out)
       real(r8), intent(in) :: vec(:,:,:,:)
       real(r8), intent(in) :: sca(:,:,:)

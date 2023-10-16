@@ -14,7 +14,6 @@ contains
       complex(r8) :: db(3, num_modes, num_coils)
       integer :: idx_time, idx_coil, idx_mode
       real(r8) :: int_factor
-      ! real(r8), dimension(len_s, len_th, len_ph, 3)  :: us, uth, uph
 
       write (*, '(/, A)') "MAIN LOOP"
       write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
@@ -38,7 +37,7 @@ contains
 
          !  Integral for each mode
          do idx_mode=1, num_modes
-            db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, int_factor, us, uth, uph)
+            db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, int_factor)
          end do
 
          !  Time evolution
@@ -54,37 +53,36 @@ contains
    end subroutine main_loop
 
 
-   function integrate_mode(idx_mode, int_factor, us, uth, uph) result(db)
-      use global, only: len_s, len_th, len_ph, j_super
+   function integrate_mode(idx_mode, int_factor) result(db_int)
+      use global, only : len_s, len_th, len_ph, j_super, us, uth, uph, db_all
+      use helper, only : scalar_product_real_cplx
       integer, intent(in) :: idx_mode
-      real(r8), intent(in), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
       real(r8) :: int_factor
-      complex(r8) :: dbx, dby, dbz, db(3)
+      complex(r8) :: dbx, dby, dbz, db_int(3)
+
       integer :: i, j, k
-      db = 0.
+      db_int = 0.
       dbx = 0.
       dby = 0.
       dbz = 0.
+
+      db_all(:,:,:,:,idx_mode) = scalar_product_real_cplx(us, j_super(:,:,:,1,idx_mode)) + &
+         scalar_product_real_cplx(uth, j_super(:,:,:,2,idx_mode)) + &
+         scalar_product_real_cplx(uph, j_super(:,:,:,3,idx_mode))
 
       !$OMP PARALLEL DO PRIVATE(i, j, k) REDUCTION (+:dbx, dby, dbz)
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
-               dbx = dbx + (us(i, j, k, 1) * j_super(i, j, k, 1, idx_mode) + &
-                  uth(i, j, k, 1) * j_super(i, j, k, 2, idx_mode) + &
-                  uph(i, j, k, 1) * j_super(i, j, k, 3, idx_mode))
-               dby = dby + (us(i, j, k, 2) * j_super(i, j, k, 1, idx_mode) + &
-                  uth(i, j, k, 2) * j_super(i, j, k, 2, idx_mode) + &
-                  uph(i, j, k, 2) * j_super(i, j, k, 3, idx_mode))
-               dbz = dbz + (us(i, j, k, 3) * j_super(i, j, k, 1, idx_mode) + &
-                  uth(i, j, k, 3) * j_super(i, j, k, 2, idx_mode) + &
-                  uph(i, j, k, 3) * j_super(i, j, k, 3, idx_mode))
+               dbx = dbx + db_all(i, j, k, 1, idx_mode)
+               dby = dby + db_all(i, j, k, 2, idx_mode)
+               dbz = dbz + db_all(i, j, k, 3, idx_mode)
             end do
          end do
       end do
       !$OMP END PARALLEL DO
 
-      db = - (/ dbx, dby, dbz /) * int_factor / (4*pi)
+      db_int = - (/ dbx, dby, dbz /) * int_factor / (4*pi)
 
    end function integrate_mode
 
@@ -93,8 +91,6 @@ contains
       use helper, only : scalar_product_real, cross_product_real, dot_product_real
       use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
          us, uth, uph, r_coil, sqrt_g, r_3_sqrtg
-      ! real(r8), intent(out), dimension(len_s, len_th, len_ph, 3) :: us, uth, uph
-      ! real(r8), dimension(len_s, len_th, len_ph, 3) :: r_coil
       integer, intent(in) :: idx_coil
 
       r_coil(:,:,:,1) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)

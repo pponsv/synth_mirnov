@@ -6,12 +6,13 @@ module potential
 contains
 
    subroutine try_dealloc_pot
-      use global, only : dpot_dph, dpot_dth, gradpar_pot_super, j_super
+      use global, only : dpot_dph, dpot_dth, gradpar_pot_super, j_super, db_all
 
       if (allocated(dpot_dph)) deallocate(dpot_dph)
       if (allocated(dpot_dth)) deallocate(dpot_dth)
       if (allocated(gradpar_pot_super)) deallocate(gradpar_pot_super)
       if (allocated(j_super)) deallocate(j_super)
+      if (allocated(db_all)) deallocate(db_all)
 
    end subroutine try_dealloc_pot
 
@@ -36,6 +37,7 @@ contains
       allocate(dpot_dth(len_s, len_th, len_ph, num_modes))
       allocate(gradpar_pot_super(len_s, len_th, len_ph, 3, num_modes))
       allocate(j_super(len_s, len_th, len_ph, 3, num_modes))
+      allocate(db_all(len_s, len_th, len_ph, 3, num_modes))
 
    end subroutine init_pot
 
