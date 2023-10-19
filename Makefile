@@ -1,8 +1,8 @@
 .PHONY : clean compile_lib compile_py rebuild
 
 LIBNAME = synth_mirnov_lib
-OPT_FLAG = -Wall -Og -fbacktrace 
-# OPT_FLAG = -O2
+# OPT_FLAG = -Wall -Og -fbacktrace 
+OPT_FLAG = -O2
 SRC_LIB = ./src_lib
 SRC_F2PY = ./src
 OBJ_DIR = ./bld
