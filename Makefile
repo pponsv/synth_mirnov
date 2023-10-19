@@ -16,6 +16,9 @@ F2PY_FLAGS = -fPIC $(OPT_FLAG) -ffree-form -fopenmp -L./lib/ -I$(OBJ_DIR)/  -L/u
 rebuild : clean compile_lib compile_py 
 
 compile_py : $(LIB_DIR)/lib$(LIBNAME).a $(SRC_F2PY)/synthetic_mirnov.f90
+	f2py -c -m synth_mirnov --f90flags='$(F2PY_FLAGS)' -lgomp -lfftw3 -lm $(SRC_F2PY)/synthetic_mirnov.f90 $(LIB_DIR)/libsynth_mirnov_lib.a
+
+compile_py_debug : $(LIB_DIR)/lib$(LIBNAME).a $(SRC_F2PY)/synthetic_mirnov.f90
 	f2py -c -m synth_mirnov --debug-capi --f90flags='$(F2PY_FLAGS)' -lgomp -lfftw3 -lm $(SRC_F2PY)/synthetic_mirnov.f90 $(LIB_DIR)/libsynth_mirnov_lib.a
 
 compile_lib : $(LIB_DIR)/lib$(LIBNAME).a
