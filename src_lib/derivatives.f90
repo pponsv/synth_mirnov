@@ -18,6 +18,22 @@ contains
    end function gradient
 
 
+   function curl(vec_in, inv_sqrtg) result(out)
+      use global, only : fth, fph, d_s => delta_s
+      complex(r8), intent(in) :: vec_in(:,:,:,:)
+      real(r8), intent(in) :: inv_sqrtg(:,:,:)
+      complex(r8) :: out(size(vec_in, 1), size(vec_in, 2), size(vec_in, 3), 3)
+
+      out(:,:,:,1) = (partial_fft(vec_in(:,:,:,3), fth) - &
+         partial_fft(vec_in(:,:,:,2), fph)) * inv_sqrtg
+      out(:,:,:,2) = (partial_fft(vec_in(:,:,:,1), fph) - &
+         partial_rad(vec_in(:,:,:,3), d_s)) * inv_sqrtg
+      out(:,:,:,3) = (partial_rad(vec_in(:,:,:,2), d_s) - &
+         partial_fft(vec_in(:,:,:,1), fth)) * inv_sqrtg
+
+   end function curl
+
+
    function partial_rad(in, ds) result(out)
       complex(r8), intent(in) :: in(:,:,:)
       real(r8) :: ds
@@ -49,22 +65,6 @@ contains
       !$OMP END PARALLEL DO
 
    end function partial_fft
-
-
-   function curl(vec_in, inv_sqrtg) result(out)
-      use global, only : fth, fph, d_s => delta_s
-      complex(r8), intent(in) :: vec_in(:,:,:,:)
-      real(r8), intent(in) :: inv_sqrtg(:,:,:)
-      complex(r8) :: out(size(vec_in, 1), size(vec_in, 2), size(vec_in, 3), 3)
-
-      out(:,:,:,1) = (partial_fft(vec_in(:,:,:,3), fth) - &
-         partial_fft(vec_in(:,:,:,2), fph)) * inv_sqrtg
-      out(:,:,:,2) = (partial_fft(vec_in(:,:,:,1), fph) - &
-         partial_rad(vec_in(:,:,:,3), d_s)) * inv_sqrtg
-      out(:,:,:,3) = (partial_rad(vec_in(:,:,:,2), d_s) - &
-         partial_fft(vec_in(:,:,:,1), fth)) * inv_sqrtg
-
-   end function curl
 
 
    pure function finite_differences_1(y, dx) result(dy)

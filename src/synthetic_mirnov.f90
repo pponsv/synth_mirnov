@@ -263,13 +263,14 @@ contains
       use derivatives, only : fd1 => finite_differences_1, fd2 => finite_differences_2, &
          fd3 => finite_differences_3, fd4 => finite_differences_4
       integer, intent(in) :: lx, order
-      real(8), intent(in) :: dx, y(lx)
-      real(8), intent(out) :: dy (lx)
+      real(8), intent(in) :: dx
+      complex(8), intent(in) :: y(lx)
+      complex(8), intent(out) :: dy(lx)
 
-      if (order .eq. 1) dy = fd1(cmplx(y, kind=8), dx)
-      if (order .eq. 2) dy = fd2(cmplx(y, kind=8), dx)
-      if (order .eq. 3) dy = fd3(cmplx(y, kind=8), dx)
-      if (order .eq. 4) dy = fd4(cmplx(y, kind=8), dx)
+      if (order .eq. 1) dy = fd1(y, dx)
+      if (order .eq. 2) dy = fd2(y, dx)
+      if (order .eq. 3) dy = fd3(y, dx)
+      if (order .eq. 4) dy = fd4(y, dx)
 
    end subroutine test_findiff
 
