@@ -26,6 +26,7 @@ contains
       delta_s = s(2) - s(1)
       delta_th = th(2) - th(1)
       delta_ph = ph(2) - ph(1)
+      int_factor = delta_s * delta_th * delta_ph
 
       !  FFTs for derivatives
       th_freqs = 2*PI*fftfreqs(len_th, delta_th)

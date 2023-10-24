@@ -11,23 +11,29 @@ contains
       use potential, only : potential_gradients, potential_curls
 
       complex(r8), intent(out) :: db_coils(3, num_coils, len_t)
-      complex(r8) :: db(3, num_modes, num_coils)
-      integer :: idx_time, idx_coil, idx_mode
-      real(r8) :: int_factor
 
       write (*, '(/, A)') "MAIN LOOP"
       write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
       write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
       write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
 
-      int_factor = delta_s * delta_th * delta_ph
-      db_coils = 0.
-      db = 0.
-
       call potential_gradients
 
       call potential_curls
 
+      call loop_over_coils(db_coils)
+
+   end subroutine main_loop
+
+
+   subroutine loop_over_coils(db_coils)
+      use global
+      integer :: idx_time, idx_coil, idx_mode
+      complex(r8), intent(out) :: db_coils(3, num_coils, len_t)
+      complex(r8) :: db(3, num_modes, num_coils)
+
+      db_coils = 0.
+      db = 0.
       do idx_coil=1, num_coils
 
          write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
@@ -49,8 +55,7 @@ contains
          end do
 
       end do
-
-   end subroutine main_loop
+   end subroutine loop_over_coils
 
 
    function integrate_mode(idx_mode, int_factor) result(db_int)

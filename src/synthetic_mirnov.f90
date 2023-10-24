@@ -58,6 +58,27 @@ contains
 
    end subroutine run
 
+   !  TEST SUBROUTINES ETC
+
+   subroutine run_coil_loop(num_coils_tmp, len_t_tmp, db_coils)
+      use main
+      integer(8), intent(in) :: num_coils_tmp, len_t_tmp
+      complex(8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
+
+      call loop_over_coils(db_coils)
+
+   end subroutine run_coil_loop
+
+
+   subroutine set_j_super(j_super_b, len_s, len_th, len_ph, num_modes)
+      use global, only : j_super
+      complex(8), intent(in) :: j_super_b(len_s, len_th, len_ph, 3, num_modes)
+      integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
+
+      j_super = j_super_b
+
+   end subroutine set_j_super
+
 
    function test_fft_main(in) result(out)
       use fft_mod

@@ -15,7 +15,7 @@ module global
    integer(i8) :: len_s, len_th, len_ph
    !  Boozer coordinates mesh
    real(r8), allocatable, dimension(:) :: s, th, ph
-   real(r8) :: delta_s, delta_th, delta_ph
+   real(r8) :: delta_s, delta_th, delta_ph, int_factor
    !  Profiles
    real(r8), allocatable :: iota(:)
    !  Magnetic field
