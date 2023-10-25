@@ -72,8 +72,8 @@ contains
 
    subroutine set_j_super(j_super_b, len_s, len_th, len_ph, num_modes)
       use global, only : j_super
-      complex(8), intent(in) :: j_super_b(len_s, len_th, len_ph, 3, num_modes)
       integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
+      complex(8), intent(in) :: j_super_b(len_s, len_th, len_ph, 3, num_modes)
 
       j_super = j_super_b
 
