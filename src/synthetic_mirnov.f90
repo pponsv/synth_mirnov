@@ -58,7 +58,6 @@ contains
 
    end subroutine run
 
-   !  TEST SUBROUTINES ETC
 
    subroutine run_coil_loop(num_coils_tmp, len_t_tmp, db_coils)
       use main
@@ -81,31 +80,6 @@ contains
    end subroutine set_j_super
 
 
-   function test_fft_main(in) result(out)
-      use fft_mod
-      complex(8) :: in(:,:), nin(size(in,1), size(in, 2))
-      complex(8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
-
-      call plan_ffts()
-
-      out = fft_2d(in)
-      cout = out
-      nin = ifft_2d(cout)
-
-   end function test_fft_main
-
-
-   subroutine test_magnetic_field(i, j, k)
-      use global
-      integer, intent(in) :: i, j, k
-
-      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 1) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 1)
-      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 2) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 2)
-      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 3) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 3)
-
-   end subroutine test_magnetic_field
-
-
    function get_potnm(ls, nm) result(out)
       use global, only: prof_nm
       integer :: ls, nm
@@ -114,39 +88,6 @@ contains
       out = prof_nm
 
    end function get_potnm
-
-
-   subroutine test_meshgrid(a, b, la, lb, aa, bb)
-      use fft_mod, only: meshgrid
-      integer, intent(in) :: la, lb
-      real(8), intent(in) :: a(la), b(lb)
-      real(8), intent(out)  :: aa(lb, la), bb(lb, la)
-
-      call meshgrid(a, b, aa, bb)
-
-   end subroutine test_meshgrid
-
-
-   subroutine test_gradient(ns, nth, nph, grid, grad)
-      use derivatives
-      integer, intent(in) :: ns, nth, nph
-      complex(8), intent(in) :: grid(ns, nth, nph)
-      complex(8), intent(out) :: grad(ns, nth, nph, 3)
-
-      grad = gradient(grid)
-
-   end subroutine test_gradient
-
-
-   subroutine test_cross(a, b, l1, l2, l3, out)
-      use helper
-      integer :: l1, l2, l3
-      real(8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
-      real(8), intent(out) :: out(l1, l2, l3, 3)
-
-      out = cross_product_real(a, b)
-
-   end subroutine test_cross
 
 
    subroutine get_j_super(out, len_s, len_th, len_ph, num_modes)
@@ -227,6 +168,15 @@ contains
 
    end subroutine get_r_3_sqrtg
 
+end module synthetic_mirnov
+
+
+
+module tests
+
+   implicit none
+
+contains
 
    subroutine test_findiff(y, dx, lx, order, dy)
       use derivatives, only : fd1 => finite_differences_1, fd2 => finite_differences_2, &
@@ -243,5 +193,62 @@ contains
 
    end subroutine test_findiff
 
-end module synthetic_mirnov
+   subroutine test_meshgrid(a, b, la, lb, aa, bb)
+      use fft_mod, only: meshgrid
+      integer, intent(in) :: la, lb
+      real(8), intent(in) :: a(la), b(lb)
+      real(8), intent(out)  :: aa(lb, la), bb(lb, la)
 
+      call meshgrid(a, b, aa, bb)
+
+   end subroutine test_meshgrid
+
+
+   subroutine test_gradient(ns, nth, nph, grid, grad)
+      use derivatives
+      integer, intent(in) :: ns, nth, nph
+      complex(8), intent(in) :: grid(ns, nth, nph)
+      complex(8), intent(out) :: grad(ns, nth, nph, 3)
+
+      grad = gradient(grid)
+
+   end subroutine test_gradient
+
+
+   subroutine test_cross(a, b, l1, l2, l3, out)
+      use helper
+      integer :: l1, l2, l3
+      real(8), intent(in) :: a(l1, l2, l3, 3), b(l1, l2, l3, 3)
+      real(8), intent(out) :: out(l1, l2, l3, 3)
+
+      out = cross_product_real(a, b)
+
+   end subroutine test_cross
+
+
+
+   function test_fft_main(in) result(out)
+      use fft_mod
+      complex(8) :: in(:,:), nin(size(in,1), size(in, 2))
+      complex(8) :: out(size(in,1), size(in, 2)), cout(size(in,1), size(in, 2))
+
+      call plan_ffts()
+
+      out = fft_2d(in)
+      cout = out
+      nin = ifft_2d(cout)
+
+   end function test_fft_main
+
+
+   subroutine test_magnetic_field(i, j, k)
+      use global
+      integer, intent(in) :: i, j, k
+
+      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 1) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 1)
+      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 2) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 2)
+      print *,  b_super(i, j, k, 2) * e_sub_th(i, j, k, 3) + b_super(i, j, k, 3) * e_sub_ph(i, j, k, 3)
+
+   end subroutine test_magnetic_field
+
+end module tests
