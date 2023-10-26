@@ -172,12 +172,12 @@ contains
       out(:,:,:,1,2) = dot_product_real(es, eth)
       out(:,:,:,1,3) = dot_product_real(es, eph)
 
-      out(:,:,:,2,1) = out(:,:,:,1,2)
+      out(:,:,:,2,1) = dot_product_real(eth, es)
       out(:,:,:,2,2) = dot_product_real(eth, eth)
       out(:,:,:,2,3) = dot_product_real(eth, eph)
 
-      out(:,:,:,3,1) = out(:,:,:,1,3)
-      out(:,:,:,3,2) = out(:,:,:,2,3)
+      out(:,:,:,3,1) = dot_product_real(eph, es)
+      out(:,:,:,3,2) = dot_product_real(eph, eth)
       out(:,:,:,3,3) = dot_product_real(eph, eph)
 
    end function metric_tensor

@@ -71,9 +71,9 @@ contains
       dby = 0.
       dbz = 0.
 
-      db_all(:,:,:,:,idx_mode) = scalar_product_real_cplx(us, j_super(:,:,:,1,idx_mode)) + &
+      db_all(:,:,:,:,idx_mode) = (scalar_product_real_cplx(us, j_super(:,:,:,1,idx_mode)) + &
          scalar_product_real_cplx(uth, j_super(:,:,:,2,idx_mode)) + &
-         scalar_product_real_cplx(uph, j_super(:,:,:,3,idx_mode))
+         scalar_product_real_cplx(uph, j_super(:,:,:,3,idx_mode)))
 
       !$OMP PARALLEL DO PRIVATE(i, j, k) REDUCTION (+:dbx, dby, dbz)
       do k=1, len_ph

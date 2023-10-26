@@ -22,9 +22,7 @@ def gaussian_forced_zero_hard(s, s0, amp, sigma, phase=0):
 
 
 class potential:
-    def __init__(
-        self, s, m, n, freq, profile_function=gaussian_forced_zero_soft, **kwargs
-    ):
+    def __init__(self, s, m, n, freq, profile_function=gaussian_profile, **kwargs):
         self.s = s
         self.m = m
         self.n = n

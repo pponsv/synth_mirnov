@@ -43,7 +43,7 @@ contains
       !$OMP PARALLEL DO PRIVATE(k, j)
       do k=1, size(in, 3)
          do j=1, size(in, 2)
-            out(:, j, k) = finite_differences_4(in(:, j, k), ds)
+            out(:, j, k) = finite_differences_1(in(:, j, k), ds)
          end do
       end do
       !$OMP END PARALLEL DO
