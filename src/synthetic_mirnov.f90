@@ -69,6 +69,16 @@ contains
    end subroutine run_coil_loop
 
 
+   subroutine calc_potentials
+      use potential, only : potential_gradients, potential_curls
+
+      call potential_gradients
+
+      call potential_curls
+
+   end subroutine calc_potentials
+
+
    subroutine set_j_super(j_super_b, len_s, len_th, len_ph, num_modes)
       use global, only : j_super
       integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
