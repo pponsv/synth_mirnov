@@ -2,7 +2,7 @@ from ..synth_mirnov import synthetic_mirnov as sm
 import numpy as np
 
 
-def init_synth_mirnov(booz, coil_positions):
+def init_synth_mirnov(booz):
     sm.init_booz(
         s_b=booz.s,
         th_b=booz.th,
@@ -20,7 +20,6 @@ def init_synth_mirnov(booz, coil_positions):
         e_sub_th_b=np.moveaxis(booz.vecs["e_th"], 0, -1),
         e_sub_ph_b=np.moveaxis(booz.vecs["e_ph"], 0, -1),
     )
-    sm.init_coils(coil_positions)
 
 
 def init_potentials(potentials, time):
@@ -34,4 +33,5 @@ def init_potentials(potentials, time):
 
 
 def run(time, coil_positions):
+    sm.init_coils(coil_positions)
     return sm.run(len(coil_positions), len(time))

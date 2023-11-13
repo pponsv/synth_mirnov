@@ -120,6 +120,7 @@ contains
       coil_xyz = transpose(xyzs)
       num_coils = ncoils
 
+      if (allocated(r_coil)) deallocate(r_coil)
       allocate(r_coil(len_s, len_th, len_ph, 3))
    end subroutine initialize_coils
 
