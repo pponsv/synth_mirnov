@@ -107,7 +107,6 @@ contains
       complex(r8) :: out(size(vec, 1), size(vec, 2), size(vec, 3), 3)
       integer :: i, j, k
 
-      ! $OMP PARALLEL DO PRIVATE(i, j, k)
       do k=1, size(vec, 3)
          do j=1, size(vec, 2)
             do i=1, size(vec, 1)
@@ -115,7 +114,6 @@ contains
             end do
          end do
       end do
-      ! $OMP END PARALLEL DO
 
    end function scalar_product_real_cplx
 

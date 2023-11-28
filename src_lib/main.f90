@@ -65,7 +65,7 @@ contains
       use global, only : len_s, len_th, len_ph, j_super, us, uth, uph, db_all
       use helper, only : scalar_product_real_cplx
       integer, intent(in) :: idx_mode, idx_coil
-      real(r8) :: int_factor
+      real(r8), intent(in) :: int_factor
       complex(r8) :: dbx, dby, dbz, db_int(3)
 
       integer :: i, j, k
@@ -79,7 +79,6 @@ contains
          scalar_product_real_cplx(uth(:,:,:,:,idx_coil), j_super(:,:,:,2,idx_mode)) + &
          scalar_product_real_cplx(uph(:,:,:,:,idx_coil), j_super(:,:,:,3,idx_mode)))
 
-      ! $OMP PARALLEL DO PRIVATE(i, j, k) REDUCTION (+:dbx, dby, dbz)
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
@@ -89,7 +88,6 @@ contains
             end do
          end do
       end do
-      ! $OMP END PARALLEL DO
 
       db_int = - (/ dbx, dby, dbz /) * int_factor / (4*pi)
 
