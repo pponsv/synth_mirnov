@@ -114,14 +114,36 @@ contains
 
    subroutine initialize_coils(xyzs, ncoils)
       use global, only : coil_xyz, num_coils, len_s, len_th, len_ph, r_coil
+      use helper, only : scalar_product_real, cross_product_real, dot_product_real
+      use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
+         us, uth, uph, r_coil, sqrt_g, r_3_sqrtg
+
       integer(i8), intent(in) :: ncoils
       real(r8), intent(in) :: xyzs(ncoils, 3)
+      integer :: idx_coil
 
       coil_xyz = transpose(xyzs)
       num_coils = ncoils
 
       if (allocated(r_coil)) deallocate(r_coil)
-      allocate(r_coil(len_s, len_th, len_ph, 3))
+      allocate(r_coil(len_s, len_th, len_ph, 3, idx_coil))
+
+      do idx_coil=1, num_coils
+         r_coil(:,:,:,1, idx_coil) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)
+         r_coil(:,:,:,2, idx_coil) = coil_xyz(2,idx_coil) - xyz_grid(:,:,:,2)
+         r_coil(:,:,:,3, idx_coil) = coil_xyz(3,idx_coil) - xyz_grid(:,:,:,3)
+
+         r_3_sqrtg = sqrt_g * sqrt(dot_product_real(r_coil(:,:,:,:,idx_coil), &
+            r_coil(:,:,:,:,idx_coil)))**(-3)
+
+         us(:,:,:,:, idx_coil)  = scalar_product_real(cross_product_real(e_sub_s,  &
+            r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
+         uth(:,:,:,:, idx_coil) = scalar_product_real(cross_product_real(e_sub_th, &
+            r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
+         uph(:,:,:,:, idx_coil) = scalar_product_real(cross_product_real(e_sub_ph, &
+            r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
+
+      end do
    end subroutine initialize_coils
 
 end module initialization

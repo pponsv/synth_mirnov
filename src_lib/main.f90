@@ -34,18 +34,21 @@ contains
 
       db_coils = 0.
       db = 0.
+
+      !$OMP PARALLEL DO PRIVATE(idx_coil, idx_mode)
       do idx_coil=1, num_coils
 
          write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
          if (idx_coil == num_coils) write (*, '(/)')
 
-         call init_coil(idx_coil)
-
          !  Integral for each mode
          do idx_mode=1, num_modes
-            db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, int_factor)
+            db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, idx_coil, int_factor)
          end do
+      end do
+      !$OMP END PARALLEL DO
 
+      do idx_coil=1, num_coils
          !  Time evolution
          do idx_time=1, len_t
             do idx_mode=1, num_modes
@@ -58,10 +61,10 @@ contains
    end subroutine loop_over_coils
 
 
-   function integrate_mode(idx_mode, int_factor) result(db_int)
+   function integrate_mode(idx_mode, idx_coil, int_factor) result(db_int)
       use global, only : len_s, len_th, len_ph, j_super, us, uth, uph, db_all
       use helper, only : scalar_product_real_cplx
-      integer, intent(in) :: idx_mode
+      integer, intent(in) :: idx_mode, idx_coil
       real(r8) :: int_factor
       complex(r8) :: dbx, dby, dbz, db_int(3)
 
@@ -71,11 +74,12 @@ contains
       dby = 0.
       dbz = 0.
 
-      db_all(:,:,:,:,idx_mode) = (scalar_product_real_cplx(us, j_super(:,:,:,1,idx_mode)) + &
-         scalar_product_real_cplx(uth, j_super(:,:,:,2,idx_mode)) + &
-         scalar_product_real_cplx(uph, j_super(:,:,:,3,idx_mode)))
+      db_all(:,:,:,:,idx_mode) = (&
+         scalar_product_real_cplx(us(:,:,:,:,idx_coil), j_super(:,:,:,1,idx_mode)) + &
+         scalar_product_real_cplx(uth(:,:,:,:,idx_coil), j_super(:,:,:,2,idx_mode)) + &
+         scalar_product_real_cplx(uph(:,:,:,:,idx_coil), j_super(:,:,:,3,idx_mode)))
 
-      !$OMP PARALLEL DO PRIVATE(i, j, k) REDUCTION (+:dbx, dby, dbz)
+      ! $OMP PARALLEL DO PRIVATE(i, j, k) REDUCTION (+:dbx, dby, dbz)
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
@@ -85,29 +89,11 @@ contains
             end do
          end do
       end do
-      !$OMP END PARALLEL DO
+      ! $OMP END PARALLEL DO
 
       db_int = - (/ dbx, dby, dbz /) * int_factor / (4*pi)
 
    end function integrate_mode
 
-
-   subroutine init_coil(idx_coil)
-      use helper, only : scalar_product_real, cross_product_real, dot_product_real
-      use global, only : coil_xyz, xyz_grid, e_sub_s, e_sub_ph, e_sub_th,&
-         us, uth, uph, r_coil, sqrt_g, r_3_sqrtg
-      integer, intent(in) :: idx_coil
-
-      r_coil(:,:,:,1) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)
-      r_coil(:,:,:,2) = coil_xyz(2,idx_coil) - xyz_grid(:,:,:,2)
-      r_coil(:,:,:,3) = coil_xyz(3,idx_coil) - xyz_grid(:,:,:,3)
-
-      r_3_sqrtg = sqrt_g * sqrt(dot_product_real(r_coil, r_coil))**(-3)
-
-      us  = scalar_product_real(cross_product_real(e_sub_s,  r_coil), r_3_sqrtg)
-      uth = scalar_product_real(cross_product_real(e_sub_th, r_coil), r_3_sqrtg)
-      uph = scalar_product_real(cross_product_real(e_sub_ph, r_coil), r_3_sqrtg)
-
-   end subroutine init_coil
 
 end module main
