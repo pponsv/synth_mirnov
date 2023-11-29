@@ -60,7 +60,7 @@ contains
       xyz_grid(:,:,:,2) = y
       xyz_grid(:,:,:,3) = z
 
-      write (*, '(/, A)') "DONE"
+      write (*, '(A)') "DONE"
       write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
    end subroutine initialize_boozer
 
