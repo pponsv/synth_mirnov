@@ -155,7 +155,7 @@ contains
 
       end do
 
-      write (*, '(/, A)') "DONE"
+      write (*, '(A)') "DONE"
 
    end subroutine initialize_coils
 
