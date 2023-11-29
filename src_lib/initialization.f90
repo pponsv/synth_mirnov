@@ -122,6 +122,8 @@ contains
       real(r8), intent(in) :: xyzs(ncoils, 3)
       integer :: idx_coil
 
+      write (*, '(/, A)', advance="no") "COIL INITIALIZATION: "
+
       coil_xyz = transpose(xyzs)
       num_coils = ncoils
 
@@ -144,6 +146,9 @@ contains
             r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
 
       end do
+
+      write (*, '(/, A)') "DONE"
+
    end subroutine initialize_coils
 
 end module initialization
