@@ -38,8 +38,8 @@ contains
       !$OMP PARALLEL DO PRIVATE(idx_coil, idx_mode)
       do idx_coil=1, num_coils
 
-         write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
-         if (idx_coil == num_coils) write (*, '(/)')
+         ! write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
+         ! if (idx_coil == num_coils) write (*, '(/)')
 
          !  Integral for each mode
          do idx_mode=1, num_modes
