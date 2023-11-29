@@ -60,7 +60,7 @@ contains
 
       !$OMP PARALLEL DO PRIVATE(i)
       do i=1, size(arr_in, 1)
-         out(i, :, :) = ifft_2d(imag * coef_grid * fft_2d(arr_in(i, :, :)))
+         out(i, :, :) = ifft_2d(IMAG * coef_grid * fft_2d(arr_in(i, :, :)))
       end do
       !$OMP END PARALLEL DO
 

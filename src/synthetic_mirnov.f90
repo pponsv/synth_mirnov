@@ -39,7 +39,6 @@ contains
 
 
    subroutine init_coils(xyzs, ncoils)
-      ! use global, only : coil_xyz, num_coils, len_s, len_th, len_ph, r_coil
       use initialization, only : initialize_coils
       integer(8), intent(in) :: ncoils
       real(8), intent(in) :: xyzs(ncoils, 3)
@@ -50,7 +49,7 @@ contains
 
 
    subroutine run(num_coils_tmp, len_t_tmp, db_coils)
-      use main
+      use main, only: main_loop
       integer(8), intent(in) :: num_coils_tmp, len_t_tmp
       complex(8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
 
@@ -60,7 +59,7 @@ contains
 
 
    subroutine run_coil_loop(num_coils_tmp, len_t_tmp, db_coils)
-      use main
+      use main, only: loop_over_coils
       integer(8), intent(in) :: num_coils_tmp, len_t_tmp
       complex(8), intent(out) :: db_coils(3, num_coils_tmp, len_t_tmp)
 
@@ -102,13 +101,13 @@ contains
 
    subroutine get_j_super(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super, ws_pot
-      use constants
+      use constants, only: MU0, IMAG
       integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
       complex(8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
       complex(8) :: fac(size(ws_pot))
       integer :: k
 
-      fac = - imag / (mu0 * 1000 * ws_pot)
+      fac = - IMAG / (MU0 * 1000 * ws_pot)
       !$OMP PARALLEL DO PRIVATE(k)
       do k=1, num_modes
          out(:,:,:,:,k) = fac(k) * j_super(:,:,:,:,k)
@@ -120,13 +119,13 @@ contains
 
    subroutine get_j_xyz(out, len_s, len_th, len_ph, num_modes)
       use global, only : j_super, es => e_sub_s, eth => e_sub_th, eph => e_sub_ph, ws_pot
-      use constants
+      use constants, only : MU0, IMAG
       integer(8), intent(in) :: len_s, len_th, len_ph, num_modes
       complex(8), intent(out) :: out(len_s, len_th, len_ph, 3, num_modes)
       complex(8) :: fac(size(ws_pot))
       integer :: j, k
 
-      fac = - imag / (mu0 * 1000 * ws_pot)
+      fac = - IMAG / (MU0 * 1000 * ws_pot)
       !$OMP PARALLEL DO PRIVATE(j, k)
       do k=1, num_modes
          do j=1, 3
@@ -234,7 +233,6 @@ contains
       out = cross_product_real(a, b)
 
    end subroutine test_cross
-
 
 
    function test_fft_main(in) result(out)

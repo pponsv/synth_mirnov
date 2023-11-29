@@ -53,7 +53,7 @@ contains
          do idx_time=1, len_t
             do idx_mode=1, num_modes
                db_coils(:, idx_coil, idx_time) = db_coils(:, idx_coil, idx_time) + &
-                  db(:, idx_mode, idx_coil)*exp( -imag * ws_pot(idx_mode) * t(idx_time))
+                  db(:, idx_mode, idx_coil)*exp( -IMAG * ws_pot(idx_mode) * t(idx_time))
             end do
          end do
 

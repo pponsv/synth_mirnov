@@ -14,8 +14,8 @@ contains
          do k=1, len_ph
             do j=1, len_th
                do i=1, len_s
-                  dpot_dth(i, j, k, l) = prof_nm(l,i) * (imag * ms_pot(l)) * exp(imag*(ms_pot(l) * th(j) + ns_pot(l) * ph(k)))
-                  dpot_dph(i, j, k, l) = prof_nm(l,i) * (imag * ns_pot(l)) * exp(imag*(ms_pot(l) * th(j) + ns_pot(l) * ph(k)))
+                  dpot_dth(i, j, k, l) = prof_nm(l,i) * (IMAG * ms_pot(l)) * exp(IMAG*(ms_pot(l) * th(j) + ns_pot(l) * ph(k)))
+                  dpot_dph(i, j, k, l) = prof_nm(l,i) * (IMAG * ns_pot(l)) * exp(IMAG*(ms_pot(l) * th(j) + ns_pot(l) * ph(k)))
                end do
             end do
          end do
