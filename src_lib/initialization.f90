@@ -126,7 +126,7 @@ contains
       num_coils = ncoils
 
       if (allocated(r_coil)) deallocate(r_coil)
-      allocate(r_coil(len_s, len_th, len_ph, 3, idx_coil))
+      allocate(r_coil(len_s, len_th, len_ph, 3, num_coils))
 
       do idx_coil=1, num_coils
          r_coil(:,:,:,1, idx_coil) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)
