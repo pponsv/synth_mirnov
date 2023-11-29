@@ -12,6 +12,8 @@ contains
       real(r8), intent(in), dimension(:,:,:) :: b_mod_b, sqrt_g_b, x, y, z
       integer :: i
 
+      write (*, '(/, A)', advance="no") "GEOMETRY INITIALIZATION: "
+
       !  Coordinate grids
       s = s_b
       th = th_b
@@ -57,6 +59,9 @@ contains
       xyz_grid(:,:,:,1) = x
       xyz_grid(:,:,:,2) = y
       xyz_grid(:,:,:,3) = z
+
+      write (*, '(/, A)') "DONE"
+      write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
    end subroutine initialize_boozer
 
 

@@ -12,10 +12,10 @@ contains
 
       complex(r8), intent(out) :: db_coils(3, num_coils, len_t)
 
-      write (*, '(/, A)') "MAIN LOOP"
-      write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
-      write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
-      write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
+      ! write (*, '(/, A)') "MAIN LOOP"
+      ! write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
+      ! write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
+      ! write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
 
       call potential_gradients
 
