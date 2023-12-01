@@ -18,7 +18,7 @@ contains
       write (*, '(A)', advance="no") "CURLS... "
       call potential_curls
 
-      write (*, '(A)', advance="no") "LOOP ..."
+      write (*, '(A)', advance="no") "LOOP... "
       call loop_over_coils(db_coils)
 
       write (*, '(A)') "DONE"
