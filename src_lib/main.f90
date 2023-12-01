@@ -33,7 +33,7 @@ contains
       db_coils = 0.
       db = 0.
 
-      !!$OMP PARALLEL DO PRIVATE(idx_coil, idx_mode)
+      !$OMP PARALLEL DO PRIVATE(idx_coil, idx_mode)
       do idx_coil=1, num_coils
 
          !  Integral for each mode
@@ -41,7 +41,7 @@ contains
             db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, idx_coil, int_factor)
          end do
       end do
-      !!$OMP END PARALLEL DO
+      !$OMP END PARALLEL DO
 
       do idx_coil=1, num_coils
          !  Time evolution
