@@ -138,19 +138,21 @@ contains
       allocate(uth(len_s, len_th, len_ph, 3, num_coils))
       allocate(uph(len_s, len_th, len_ph, 3, num_coils))
 
+      write (*, '(A)', advance="no") "Allocated, "
+
       do idx_coil=1, num_coils
-         r_coil(:,:,:,1, idx_coil) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)
-         r_coil(:,:,:,2, idx_coil) = coil_xyz(2,idx_coil) - xyz_grid(:,:,:,2)
-         r_coil(:,:,:,3, idx_coil) = coil_xyz(3,idx_coil) - xyz_grid(:,:,:,3)
+         r_coil(:,:,:,1,idx_coil) = coil_xyz(1,idx_coil) - xyz_grid(:,:,:,1)
+         r_coil(:,:,:,2,idx_coil) = coil_xyz(2,idx_coil) - xyz_grid(:,:,:,2)
+         r_coil(:,:,:,3,idx_coil) = coil_xyz(3,idx_coil) - xyz_grid(:,:,:,3)
 
          r_3_sqrtg = sqrt_g * sqrt(dot_product_real(r_coil(:,:,:,:,idx_coil), &
             r_coil(:,:,:,:,idx_coil)))**(-3)
 
-         us(:,:,:,:, idx_coil)  = scalar_product_real(cross_product_real(e_sub_s,  &
+         us(:,:,:,:,idx_coil)  = scalar_product_real(cross_product_real(e_sub_s,  &
             r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
-         uth(:,:,:,:, idx_coil) = scalar_product_real(cross_product_real(e_sub_th, &
+         uth(:,:,:,:,idx_coil) = scalar_product_real(cross_product_real(e_sub_th, &
             r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
-         uph(:,:,:,:, idx_coil) = scalar_product_real(cross_product_real(e_sub_ph, &
+         uph(:,:,:,:,idx_coil) = scalar_product_real(cross_product_real(e_sub_ph, &
             r_coil(:,:,:,:,idx_coil)), r_3_sqrtg)
 
       end do

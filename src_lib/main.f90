@@ -12,15 +12,13 @@ contains
 
       complex(r8), intent(out) :: db_coils(3, num_coils, len_t)
 
-      ! write (*, '(/, A)') "MAIN LOOP"
-      ! write (*, '(A12, I5, 3X)') "NUM COILS = ", num_coils
-      ! write (*, '(A12, 3(I5, 3X))') "GRID SIZE = ", len_s, len_th, len_ph
-      ! write (*, '(A12, 3(I5, 3X))') "DB SIZE =   ", size(db_coils, 1), size(db_coils, 2), size(db_coils, 3)
-
+      write (*, '(/, A)', advance="no") "MAIN LOOP: gradients... "
       call potential_gradients
 
+      write (*, '(/, A)', advance="no") "curls... "
       call potential_curls
 
+      write (*, '(/, A)', advance="no") "loop ..."
       call loop_over_coils(db_coils)
 
    end subroutine main_loop
@@ -35,18 +33,15 @@ contains
       db_coils = 0.
       db = 0.
 
-      !$OMP PARALLEL DO PRIVATE(idx_coil, idx_mode)
+      !!$OMP PARALLEL DO PRIVATE(idx_coil, idx_mode)
       do idx_coil=1, num_coils
-
-         ! write (*, '(1a1, A5, I4, A1, I0)', advance="no") char(13), 'COIL:', idx_coil, '/', num_coils
-         ! if (idx_coil == num_coils) write (*, '(/)')
 
          !  Integral for each mode
          do idx_mode=1, num_modes
             db(:, idx_mode, idx_coil) = integrate_mode(idx_mode, idx_coil, int_factor)
          end do
       end do
-      !$OMP END PARALLEL DO
+      !!$OMP END PARALLEL DO
 
       do idx_coil=1, num_coils
          !  Time evolution
