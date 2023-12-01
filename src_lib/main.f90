@@ -12,14 +12,16 @@ contains
 
       complex(r8), intent(out) :: db_coils(3, num_coils, len_t)
 
-      write (*, '(/, A)', advance="no") "MAIN LOOP: gradients... "
+      write (*, '(A)', advance="no") "MAIN LOOP: GRADIENTS... "
       call potential_gradients
 
-      write (*, '(/, A)', advance="no") "curls... "
+      write (*, '(A)', advance="no") "CURLS... "
       call potential_curls
 
-      write (*, '(/, A)', advance="no") "loop ..."
+      write (*, '(A)', advance="no") "LOOP ..."
       call loop_over_coils(db_coils)
+
+      write (*, '(A)') "DONE"
 
    end subroutine main_loop
 
