@@ -56,11 +56,12 @@ contains
    end subroutine loop_over_coils
 
 
-   function integrate_mode(idx_mode, idx_coil, int_factor) result(db_int)
-      use global, only : len_s, len_th, len_ph, j_super, us, uth, uph, db_all
+   pure function integrate_mode(idx_mode, idx_coil, int_factor) result(db_int)
+      use global, only : len_s, len_th, len_ph, j_super, us, uth, uph
       use helper, only : scalar_product_real_cplx
       integer, intent(in) :: idx_mode, idx_coil
       real(r8), intent(in) :: int_factor
+      complex(r8) :: db_all(len_s, len_th, len_ph, 3)
       complex(r8) :: dbx, dby, dbz, db_int(3)
 
       integer :: i, j, k
@@ -69,7 +70,7 @@ contains
       dby = 0.
       dbz = 0.
 
-      db_all(:,:,:,:,idx_mode) = (&
+      db_all = (&
          scalar_product_real_cplx(us(:,:,:,:,idx_coil), j_super(:,:,:,1,idx_mode)) + &
          scalar_product_real_cplx(uth(:,:,:,:,idx_coil), j_super(:,:,:,2,idx_mode)) + &
          scalar_product_real_cplx(uph(:,:,:,:,idx_coil), j_super(:,:,:,3,idx_mode)))
@@ -77,9 +78,9 @@ contains
       do k=1, len_ph
          do j=1, len_th
             do i=1, len_s
-               dbx = dbx + db_all(i, j, k, 1, idx_mode)
-               dby = dby + db_all(i, j, k, 2, idx_mode)
-               dbz = dbz + db_all(i, j, k, 3, idx_mode)
+               dbx = dbx + db_all(i, j, k, 1)
+               dby = dby + db_all(i, j, k, 2)
+               dbz = dbz + db_all(i, j, k, 3)
             end do
          end do
       end do

@@ -101,7 +101,7 @@ contains
    end function scalar_product_cplx
 
 
-   function scalar_product_real_cplx(vec, sca) result(out)
+   pure function scalar_product_real_cplx(vec, sca) result(out)
       real(r8), intent(in) :: vec(:,:,:,:)
       complex(r8), intent(in) :: sca(:,:,:)
       complex(r8) :: out(size(vec, 1), size(vec, 2), size(vec, 3), 3)
