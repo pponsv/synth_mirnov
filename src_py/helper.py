@@ -32,6 +32,10 @@ def init_potentials(potentials, time):
     )
 
 
+def calc_potentials():
+    sm.calc_potentials()
+
+
 def run(time, coil_positions):
     sm.init_coils(coil_positions)
     return sm.run(len(coil_positions), len(time))
