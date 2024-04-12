@@ -6,7 +6,6 @@ project('synth_mirnov', 'c',
     'warning_level=2', 
     'default_library=static', 
     'optimization=2', 
-    'warning_level=2', 
     'fortran_std=f2008',
   ],
 )
@@ -49,9 +48,9 @@ lib_synth_mirnov = library(MODULE_NAME,
   lib_synth_mirnov_sources,
   include_directories: '/usr/include/',
   dependencies : [fftw_dep, openmp],
-  install : false
+  install : false,
+  pic : true
 )
-
 
 synth_mirnov_custom_target = custom_target('synth_mirnov.c',
   input : ['src/synthetic_mirnov.f90'], 
@@ -69,5 +68,6 @@ py.extension_module(MODULE_NAME,
   include_directories: inc_np,
   dependencies : [py_dep, openmp],
   link_with : lib_synth_mirnov,
-  install : false
+  install : true,
+  install_dir : meson.source_root() + '/bin/',
 )

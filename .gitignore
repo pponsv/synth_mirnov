@@ -1,5 +1,4 @@
 bld/
-bin/
 booz_pickles/
 device/
 lib/
@@ -9,4 +8,3 @@ __pycache__/
 *.cpython*
 *.o
 *.a
-# *.ipynb

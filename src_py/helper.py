@@ -1,4 +1,4 @@
-from ..synth_mirnov import synthetic_mirnov as sm
+from ..bin.synth_mirnov import synthetic_mirnov as sm
 import numpy as np
 
 
