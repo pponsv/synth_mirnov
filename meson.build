@@ -1,6 +1,6 @@
 project(
   'synth_mirnov',
-  'c',
+  ['c', 'fortran'],
   version: '0.1',
   license: 'BSD-3',
   meson_version: '>=1.4.0',
@@ -13,13 +13,14 @@ project(
 )
 MODULE_NAME = 'synth_mirnov'
 
-add_languages('fortran')
+# add_languages('fortran')
 fortran_compiler = meson.get_compiler('fortran')
 
 if fortran_compiler.get_id() == 'gcc'
   add_project_arguments('-ffree-line-length-none', language: 'fortran')
 endif
 
+# F2PY bindings
 py_mod = import('python')
 py = py_mod.find_installation(pure: true)
 py_dep = py.dependency()
@@ -39,9 +40,11 @@ incdir_f2py = run_command(
   check: true,
 ).stdout().strip()
 
+# DEPENDENCIES
 fftw_dep = dependency('fftw3')
 openmp = dependency('openmp')
 
+# FORTRAN LIBRARY
 lib_synth_mirnov_sources = files(
   'src_lib/constants.f90',
   'src_lib/derivatives.f90',
@@ -54,7 +57,7 @@ lib_synth_mirnov_sources = files(
 )
 
 lib_synth_mirnov = library(
-  MODULE_NAME,
+  'synth_mirnov_lib',
   lib_synth_mirnov_sources,
   include_directories: '/usr/include/',
   dependencies: [fftw_dep, openmp],
@@ -62,6 +65,7 @@ lib_synth_mirnov = library(
   pic: true,
 )
 
+# F2PY MODULE WRAPPERS
 synth_mirnov_custom_target = custom_target(
   'synth_mirnov.c',
   input: ['src/synthetic_mirnov.f90'],
@@ -75,6 +79,7 @@ synth_mirnov_custom_target = custom_target(
 
 inc_np = include_directories(incdir_numpy, incdir_f2py)
 
+# F2PY MODULE COMPILATION
 py.extension_module(
   MODULE_NAME,
   ['src/synthetic_mirnov.f90', synth_mirnov_custom_target],
