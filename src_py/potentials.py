@@ -5,6 +5,10 @@ def gaussian_profile(s, s0, amp, sigma, phase=0):
     return amp * np.exp(1j * phase) * np.exp(-((s - s0) ** 2) / sigma)
 
 
+def gaussian_profile_rho(s, s0, amp, sigma, phase=0):
+    return amp * np.exp(1j * phase) * np.exp(-((np.sqrt(s) - s0) ** 2) / sigma)
+
+
 def ramp_hard(x, y, x0=0.0, x1=1.0, k=0.01):
     return np.nan_to_num((y * ((x - x0) ** k) * (x1 - x) ** k), nan=0.0)
 

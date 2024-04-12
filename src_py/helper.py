@@ -1,4 +1,4 @@
-from ..synth_mirnov import synthetic_mirnov as sm
+from ..bin.synth_mirnov import synthetic_mirnov as sm
 import numpy as np
 
 
@@ -30,6 +30,10 @@ def init_potentials(potentials, time):
         fs=[pot.freq for pot in potentials],
         time=time,
     )
+
+
+def calc_potentials():
+    sm.calc_potentials()
 
 
 def init_coils(coil_positions):
