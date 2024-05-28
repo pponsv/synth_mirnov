@@ -114,7 +114,7 @@ class Booz:
         self.dph_dth = self.wrap_invert_fourier(
             self.pmns, kind="sin", deriv_order=1, deriv_dir="th"
         )
-        self.dph_dph = 1 - self.wrap_invert_fourier(
+        self.dph_dph = 1 + self.wrap_invert_fourier(
             self.pmns, kind="sin", deriv_order=1, deriv_dir="ph"
         )
         self.dz_ds = self.wrap_invert_fourier(
@@ -126,7 +126,7 @@ class Booz:
         self.dz_dth = self.wrap_invert_fourier(
             self.zmns, kind="sin", deriv_order=1, deriv_dir="th"
         )
-        self.dz_dph = -self.wrap_invert_fourier(
+        self.dz_dph = self.wrap_invert_fourier(
             self.zmns, kind="sin", deriv_order=1, deriv_dir="ph"
         )
 
