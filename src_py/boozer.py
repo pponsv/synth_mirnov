@@ -2,6 +2,10 @@ import numpy as np
 from scipy.io import netcdf_file
 
 
+def ispow2(n):
+    return n != 0 and (n & (n - 1)) == 0
+
+
 def make_coef_array(
     coefs, xm, xn, len_th, len_ph, deriv_order=0, deriv_dir=""
 ):
@@ -39,6 +43,8 @@ class Booz:
     def __init__(self, wout_path, n_th, n_ph):
         self.__wout_path = wout_path
         self._woutdata = {}
+        if (not ispow2(n_th)) or (not ispow2(n_ph)):
+            raise ValueError("n_th, n_ph must be powers of 2")
         self.n_th = n_th
         self.n_ph = n_ph
         self.th = np.linspace(0, 2 * np.pi, n_th, endpoint=False)
@@ -74,6 +80,10 @@ class Booz:
         self.bs = self.wrap_invert_fourier(self.bmnc, kind="cos")
 
         self.phi_cyl = self.ph + self.ps
+
+        self.xs = self.rs * np.cos(self.phi_cyl)
+        self.ys = self.rs * np.sin(self.phi_cyl)
+
         # Derivatives
         self.dr_ds = self.wrap_invert_fourier(
             np.gradient(self.rmnc, np.mean(np.diff(self.s)), axis=0),
@@ -122,7 +132,7 @@ class Booz:
                 self.dz_dth,
             ]
         )
-        self.e_sub_zt = np.array(
+        self.e_sub_ph = np.array(
             [
                 self.dr_dzt * exph.real - self.rs * exph.imag * self.dph_dzt,
                 self.dph_dth * exph.imag + self.rs * exph.real * self.dph_dzt,
@@ -133,7 +143,7 @@ class Booz:
         self.sqrt_g = np.einsum(
             "ijkl,ijkl->jkl",
             self.e_sub_s,
-            np.cross(self.e_sub_th, self.e_sub_zt, axisa=0, axisb=0, axisc=0),
+            np.cross(self.e_sub_th, self.e_sub_ph, axisa=0, axisb=0, axisc=0),
         )
 
     def wrap_invert_fourier(self, coefs, deriv_order=0, deriv_dir="", kind=""):
