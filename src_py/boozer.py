@@ -50,6 +50,7 @@ class Booz:
         self.th = np.linspace(0, 2 * np.pi, n_th, endpoint=False)
         self.ph = np.linspace(0, 2 * np.pi, n_ph, endpoint=False)
         self.read_wout()
+        self.get_coefs()
         self.compute_booz()
 
     def read_wout(self):
