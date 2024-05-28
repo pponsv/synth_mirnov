@@ -63,7 +63,8 @@ class Booz:
         self.s_idx = self._woutdata["jlist"] - 1
         self.s_vmec = np.linspace(0, 1, self._woutdata["ns_b"])
         self.s = self.s_vmec[self.s_idx]
-        self.iota = self._woutdata["iota_b"]
+        self.iota_vmec = self._woutdata["iota_b"]
+        self.iota = self.iota_vmec[self.s_idx]
         self.phi_b_g = self._woutdata["phi_b"][-1]
 
         self.bmnc = self._woutdata["bmnc_b"]
