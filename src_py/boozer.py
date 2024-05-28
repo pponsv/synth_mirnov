@@ -18,7 +18,7 @@ def make_coef_array(
     elif deriv_order == 1:
         if deriv_dir == "th":
             coef_array[:, xm, -xn] = 1j * xm * coefs
-        elif deriv_dir == "zt":
+        elif deriv_dir == "ph":
             coef_array[:, xm, -xn] = -1j * xn * coefs
         else:
             raise ValueError("Invalid deriv_dir")
