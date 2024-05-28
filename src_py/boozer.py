@@ -13,6 +13,12 @@ def make_coef_array(
     coef_array = np.zeros(
         (coefs.shape[0], len_th, len_ph), dtype=np.complex128
     )
+    if (np.abs(xm).max() > len_th / 2) or (np.abs(xn).max() > len_ph / 2):
+        print("Fourier mode too high for grid size - truncating.")
+        valid_indices = (np.abs(xm) <= len_th / 2) & (np.abs(xn) <= len_ph / 2)
+        xm = xm[valid_indices]
+        xn = xn[valid_indices]
+        coefs = coefs[:, valid_indices]
     if deriv_order == 0:
         coef_array[:, xm, -xn] = coefs
     elif deriv_order == 1:
@@ -88,33 +94,39 @@ class Booz:
 
         # Derivatives
         self.dr_ds = self.wrap_invert_fourier(
-            np.gradient(self.rmnc, np.mean(np.diff(self.s)), axis=0),
+            np.gradient(
+                self.rmnc, np.mean(np.diff(self.s)), axis=0, edge_order=2
+            ),
             kind="cos",
         )
         self.dr_dth = self.wrap_invert_fourier(
             self.rmnc, kind="cos", deriv_order=1, deriv_dir="th"
         )
-        self.dr_dzt = self.wrap_invert_fourier(
+        self.dr_dph = self.wrap_invert_fourier(
             self.rmnc, kind="cos", deriv_order=1, deriv_dir="ph"
         )
         self.dph_ds = self.wrap_invert_fourier(
-            np.gradient(self.pmns, np.mean(np.diff(self.s)), axis=0),
+            np.gradient(
+                self.pmns, np.mean(np.diff(self.s)), axis=0, edge_order=2
+            ),
             kind="sin",
         )
         self.dph_dth = self.wrap_invert_fourier(
             self.pmns, kind="sin", deriv_order=1, deriv_dir="th"
         )
-        self.dph_dzt = 1 - self.wrap_invert_fourier(
+        self.dph_dph = 1 - self.wrap_invert_fourier(
             self.pmns, kind="sin", deriv_order=1, deriv_dir="ph"
         )
         self.dz_ds = self.wrap_invert_fourier(
-            np.gradient(self.zmns, np.mean(np.diff(self.s)), axis=0),
+            np.gradient(
+                self.zmns, np.mean(np.diff(self.s)), axis=0, edge_order=2
+            ),
             kind="sin",
         )
         self.dz_dth = self.wrap_invert_fourier(
             self.zmns, kind="sin", deriv_order=1, deriv_dir="th"
         )
-        self.dz_dzt = -self.wrap_invert_fourier(
+        self.dz_dph = -self.wrap_invert_fourier(
             self.zmns, kind="sin", deriv_order=1, deriv_dir="ph"
         )
 
@@ -136,9 +148,9 @@ class Booz:
         )
         self.e_sub_ph = np.array(
             [
-                self.dr_dzt * exph.real - self.rs * exph.imag * self.dph_dzt,
-                self.dph_dth * exph.imag + self.rs * exph.real * self.dph_dzt,
-                self.dph_dth,
+                self.dr_dph * exph.real - self.rs * exph.imag * self.dph_dph,
+                self.dph_dth * exph.imag + self.rs * exph.real * self.dph_dph,
+                self.dz_dph,
             ]
         )
 
