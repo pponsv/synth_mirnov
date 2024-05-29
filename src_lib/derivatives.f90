@@ -66,6 +66,20 @@ contains
 
    end function partial_fft
 
+   pure function finite_differences_alvaro(y, dx) result(dy)
+      complex(r8), intent(in) :: y(:)
+      real(r8), intent(in) :: dx
+      complex(r8) :: dy(size(y))
+      integer :: i, len_y
+
+      len_y = size(y)
+
+      dy(1) = (-y(3) + 4*y(2) - 3*y(1)) / (2*dx)
+      do i=2, len_y
+         dy(i) = (y(i+1) - y(i-1)) / (2*dx)
+      end do
+      dy(len_y) = (3*y(len_y) - 4*y(len_y - 1) + y(len_y - 2)) / (2*dx)
+   end function finite_differences_alvaro
 
    pure function finite_differences_1(y, dx) result(dy)
       complex(r8), intent(in) :: y(:)
