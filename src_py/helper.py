@@ -1,8 +1,9 @@
 from ..bin.synth_mirnov import synthetic_mirnov as sm
 import numpy as np
+from .boozer import Booz
 
 
-def init_synth_mirnov(booz):
+def init_synth_mirnov_extbooz(booz):
     sm.init_booz(
         s_b=booz.s,
         th_b=booz.th,
@@ -19,6 +20,26 @@ def init_synth_mirnov(booz):
         e_sub_s_b=np.moveaxis(booz.vecs["e_s"], 0, -1),
         e_sub_th_b=np.moveaxis(booz.vecs["e_th"], 0, -1),
         e_sub_ph_b=np.moveaxis(booz.vecs["e_ph"], 0, -1),
+    )
+
+
+def init_synth_mirnov(booz: Booz):
+    sm.init_booz(
+        s_b=booz.s,
+        th_b=booz.th,
+        ph_b=booz.ph,
+        b_mod_b=booz.bs,
+        sqrt_g_b=booz.sqrt_g,
+        phi_b_g=booz.phi_b_g,
+        iota_b=booz.iota,
+        x=booz.xs,
+        y=booz.ys,
+        z=booz.zs,
+    )
+    sm.init_basis(
+        e_sub_s_b=np.moveaxis(booz.e_sub_s, 0, -1),
+        e_sub_th_b=np.moveaxis(booz.e_sub_th, 0, -1),
+        e_sub_ph_b=np.moveaxis(booz.e_sub_ph, 0, -1),
     )
 
 
