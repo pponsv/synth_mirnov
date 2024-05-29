@@ -13,19 +13,18 @@ def make_coef_array(
     coef_array = np.zeros(
         (coefs.shape[0], len_th, len_ph), dtype=np.complex128
     )
-    if (np.abs(xm).max() > len_th / 2) or (np.abs(xn).max() > len_ph / 2):
-        print("Fourier mode too high for grid size - truncating.")
-        valid_indices = (np.abs(xm) <= len_th / 2) & (np.abs(xn) <= len_ph / 2)
-        xm = xm[valid_indices]
-        xn = xn[valid_indices]
-        coefs = coefs[:, valid_indices]
+    xm_mod = np.array(xm) % len_th
+    xn_mod = -np.array(xn) % len_ph
     if deriv_order == 0:
-        coef_array[:, xm, -xn] = coefs
+        for idx, ci in enumerate(coefs):
+            np.add.at(coef_array[idx], (xm_mod, xn_mod), ci)
     elif deriv_order == 1:
         if deriv_dir == "th":
-            coef_array[:, xm, -xn] = 1j * xm * coefs
+            for idx, ci in enumerate(coefs):
+                np.add.at(coef_array[idx], (xm_mod, xn_mod), 1j * xm * ci)
         elif deriv_dir == "ph":
-            coef_array[:, xm, -xn] = -1j * xn * coefs
+            for idx, ci in enumerate(coefs):
+                np.add.at(coef_array[idx], (xm_mod, xn_mod), -1j * xn * ci)
         else:
             raise ValueError("Invalid deriv_dir")
     return coef_array
@@ -149,7 +148,7 @@ class Booz:
         self.e_sub_ph = np.array(
             [
                 self.dr_dph * exph.real - self.rs * exph.imag * self.dph_dph,
-                self.dph_dth * exph.imag + self.rs * exph.real * self.dph_dph,
+                self.dr_dph * exph.imag + self.rs * exph.real * self.dph_dph,
                 self.dz_dph,
             ]
         )
