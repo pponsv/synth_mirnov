@@ -66,6 +66,7 @@ class Booz:
                 self._woutdata[var] = wfile.variables[var].data.copy()
 
     def get_coefs(self):
+        self.n_s = len(self._woutdata["jlist"])
         self.s_idx = self._woutdata["jlist"] - 1
         self.s_vmec = np.linspace(0, 1, self._woutdata["ns_b"])
         self.s = self.s_vmec[self.s_idx]
