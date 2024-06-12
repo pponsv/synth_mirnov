@@ -32,13 +32,6 @@ def get_data(filename: str, key: str):
     return (m, n, f0, s0, sigma, alt_name), db
 
 
-def get_data_new(filename: str, key: str):
-    with h5py.File(filename, "r") as hfile:
-        run_params = ast.literal_eval(hfile[key]["run_params"][()].decode("utf-8"))  # type: ignore
-        db = hfile[key]["data"][:]  # type: ignore
-    return run_params, db
-
-
 def write_info(filename, time, db_name, len_th, len_ph):
     with h5py.File(filename, "w") as hfile:  #   Deletes the file if exists
         group = hfile.create_group("info")
@@ -62,8 +55,26 @@ def write_to_h5(filename, db, run_params):
         group.create_dataset("data", data=db)
 
 
+def write_info_new(filename, info):
+    with h5py.File(filename, "w") as hfile:  #   Deletes the file if exists
+        group = hfile.create_group("info")
+        group.create_dataset("info", data=str(info))
+
+
 def write_to_h5_new(filename, db, key, run_params):
     with h5py.File(filename, "a") as hfile:
         group = hfile.create_group(key)
         group.create_dataset("run_params", data=str(run_params))
         group.create_dataset("data", data=db)
+
+
+def get_info_new(filename: str):
+    with h5py.File(filename, "r") as hfile:
+        return ast.literal_eval(hfile["info"]["info"][()].decode("utf-8"))  # type: ignore
+
+
+def get_data_new(filename: str, key: str):
+    with h5py.File(filename, "r") as hfile:
+        run_params = ast.literal_eval(hfile[key]["run_params"][()].decode("utf-8"))  # type: ignore
+        db = hfile[key]["data"][:]  # type: ignore
+    return run_params, db
