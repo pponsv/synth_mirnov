@@ -161,6 +161,29 @@ class Booz:
             np.cross(self.e_sub_th, self.e_sub_ph, axisa=0, axisb=0, axisc=0),
         )
 
+    def compute_b_field(self):
+        self.b_super = np.zeros((3, self.n_s, self.n_th, self.n_ph))
+        self.b_super[2] = -self.phi_b_g / (2 * np.pi * self.sqrt_g)
+        self.b_super[1] = self.iota[:, None, None] * self.b_super[2]
+        self.b_xyz = (
+            self.b_super[1][None, :] * self.e_sub_th
+            + self.b_super[2][None, :] * self.e_sub_ph
+        )
+
+    def compute_super_base(self):
+        self.e_sup_s = (
+            np.cross(self.e_sub_th, self.e_sub_ph, axisa=0, axisb=0, axisc=0)
+            / self.sqrt_g
+        )
+        self.e_sup_th = (
+            np.cross(self.e_sub_ph, self.e_sub_s, axisa=0, axisb=0, axisc=0)
+            / self.sqrt_g
+        )
+        self.e_sup_ph = (
+            np.cross(self.e_sub_s, self.e_sub_th, axisa=0, axisb=0, axisc=0)
+            / self.sqrt_g
+        )
+
     def wrap_invert_fourier(self, coefs, deriv_order=0, deriv_dir="", kind=""):
         return invert_fourier(
             coefs,
