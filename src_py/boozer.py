@@ -49,8 +49,8 @@ class Booz:
     def __init__(self, wout_path, n_th, n_ph):
         self.__wout_path = wout_path
         self._woutdata = {}
-        if (not ispow2(n_th)) or (not ispow2(n_ph)):
-            raise ValueError("n_th, n_ph must be powers of 2")
+        # if (not ispow2(n_th)) or (not ispow2(n_ph)):
+        #     raise ValueError("n_th, n_ph must be powers of 2")
         self.n_th = n_th
         self.n_ph = n_ph
         self.th = np.linspace(0, 2 * np.pi, n_th, endpoint=False)

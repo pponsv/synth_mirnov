@@ -1,5 +1,6 @@
 import h5py
 import ast
+from numpy import array
 
 
 def get_keys(filename):
@@ -70,11 +71,11 @@ def write_to_h5_new(filename, db, key, run_params):
 
 def get_info_new(filename: str):
     with h5py.File(filename, "r") as hfile:
-        return ast.literal_eval(hfile["info"]["info"][()].decode("utf-8"))  # type: ignore
+        return eval(hfile["info"]["info"][()].decode())  # type: ignore
 
 
 def get_data_new(filename: str, key: str):
     with h5py.File(filename, "r") as hfile:
-        run_params = ast.literal_eval(hfile[key]["run_params"][()].decode("utf-8"))  # type: ignore
+        run_params = eval(hfile[key]["run_params"][()].decode())  # type: ignore
         db = hfile[key]["data"][:]  # type: ignore
     return run_params, db
