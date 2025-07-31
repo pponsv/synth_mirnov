@@ -58,6 +58,7 @@ class Booz:
         self.read_wout()
         self.get_coefs()
         self.compute_booz()
+        # self.compute_xyz()
 
     def read_wout(self):
         print("Reading boozer file from: ", self.__wout_path)
@@ -81,6 +82,17 @@ class Booz:
 
         self.xm = self._woutdata["ixm_b"]
         self.xn = self._woutdata["ixn_b"]
+
+    def compute_xyz(self):
+        self.rs = self.wrap_invert_fourier(self.rmnc, kind="cos")
+        self.zs = self.wrap_invert_fourier(self.zmns, kind="sin")
+        self.ps = self.wrap_invert_fourier(self.pmns, kind="sin")
+        self.bs = self.wrap_invert_fourier(self.bmnc, kind="cos")
+
+        self.phi_cyl = self.ph + self.ps
+
+        self.xs = self.rs * np.cos(self.phi_cyl)
+        self.ys = self.rs * np.sin(self.phi_cyl)
 
     def compute_booz(self):
         self.rs = self.wrap_invert_fourier(self.rmnc, kind="cos")
